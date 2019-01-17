@@ -1,0 +1,13 @@
+create x as ball
+create y as a cube
+create a cube as y3
+add y2 as a cube
+add a ball
+create a ball
+
+color x as blue
+move x right 100
+move y up 100
+move y left 100
+move x up 50
+color y as green

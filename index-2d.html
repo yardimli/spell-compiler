@@ -1,0 +1,43 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <title>Spell Compiler</title>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0">
+
+  <!-- jQuery -->
+  <script src="js/jquery-1.11.3.min.js"></script>
+  <!-- Bootstrap JS -->
+  <script src="js/bootstrap.min.js"></script>
+
+  <!-- Bootstrap CSS -->
+  <link href="css/bootstrap.min.css" rel="stylesheet">
+  <!-- Font awesome CSS -->
+  <link href="css/font-awesome.min.css" rel="stylesheet">
+
+  <link rel=stylesheet href="index-2d.css"/>
+  <script src="index-2d.js"></script>
+
+</head>
+<body>
+
+
+<div id="infoBox" class="chatbox">
+  <div class="form-group">
+    <div class="select">
+      <select class="form-control" id="program_list">
+        <option>Select a program</option>
+      </select>
+    </div>
+  </div>
+
+
+			<textarea id="spellscript" style="height: 200px; width: 280px;"></textarea>
+  <input type="text" id="spellname" style="width: 280px; margin-bottom: 10px;"></input>
+
+  <div class="btn btn-default" id="compilebtn">compile</div>
+  <div class="btn btn-default" id="save_btn">save</div>
+</div>
+<!-- ------------------------------------------------------------ -->
+
+<div id="DrawArea" class="DrawArea"></div>
