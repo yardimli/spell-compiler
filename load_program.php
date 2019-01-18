@@ -21,7 +21,10 @@ $lines = preg_split( "/(\r\n|\n|\r)/", $program_source );
 
 $source_lines = [];
 foreach ( $lines as $line ) {
-  array_push($source_lines, explode( ' ', $line . "."));
+  if (stripos($line,"//")===false) {
+    array_push( $source_lines, explode( ' ', $line . "." ) );
+  } else {
+  }
 }
 
 //var_dump($source_lines);
@@ -35,4 +38,4 @@ $source_lines2 = $pos->batchTag($source_lines);
 //  $source_lines[] = (object) array( "raw" => $line, "parsed" => $result );
 //}
 
-echo json_encode( $source_lines2 );
+echo json_encode( array("raw" => $program_source, "parsed"  => $source_lines2) );

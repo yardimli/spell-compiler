@@ -4,6 +4,17 @@ var object_counter = 0;
 var LastXPos = 100;
 var LastYPos = 100;
 
+var ParsedSource;
+
+if (!String.prototype.isInList) {
+  String.prototype.isInList = function () {
+    let value = this.valueOf();
+    for (let i = 0, l = arguments.length; i < l; i += 1) {
+      if (arguments[i] === value) return true;
+    }
+    return false;
+  }
+}
 
 //---------------------------------------------------------------------------------------------------------------------------
 function LoadProgramFile(face_name) {
@@ -20,7 +31,27 @@ function LoadProgramFile(face_name) {
     data: data,
     dataType: "json",
     success: function (data, status) {
-      $("#spellscript").val(data);
+      var newlines = "";
+      ParsedSource = data["parsed"];
+      for (x in ParsedSource) {
+        var newline = "";
+        var linex = ParsedSource[x];
+        for (y in linex) {
+          if (linex[y][0] === ".") {
+            newline += "\n";
+          }
+          else {
+            if (newline !== "") {
+              newline += " ";
+            }
+            newline += linex[y][0];
+          }
+        }
+        newlines += newline;
+      }
+
+      $("#spellscript").val(data["raw"]);
+      //$("#spellscript").val(newlines);
 //      console.log("Status: " + status);
     },
     error: function (data, status) {
@@ -118,55 +149,133 @@ $(document).ready(function () {
     LastXPos = 100;
     LastYPos = 100;
 
-    var script1 = $('#spellscript').val().split('\n');
 
-    for (var i = 0; i < script1.length; i++) {
-      scriptline = script1[i].trim();
-      console.log(scriptline);
+    for (x in ParsedSource) {
+      var newline = "";
+      var linex = ParsedSource[x];
 
-      if (scriptline.indexOf("//") === 0 || scriptline === "") {
+      var operation = "";
+      var object_x = "";
+      var color_x = "";
 
+      for (y in linex) {
+        if (linex[y][0] === ".") {
+          newline += "\n";
+        }
+        else {
+          if (linex[y][1] === "VB") {
+            operation = linex[y][0];
+          }
+
+          if (linex[y][1] === "DT") {
+            if (linex[y + 1][1] === "NN") {
+              object_x = linex[y + 1][0];
+            }
+          }
+
+          if (linex[y][1] === "DT") {
+            if (linex[y + 1][1] === "JJ" && linex[y + 2][1] === "NN") {
+              color_x = linex[y + 1][0];
+              object_x = linex[y + 2][0];
+            }
+          }
+
+        }
       }
-      else {
+
+      if (operation.toLowerCase().isInList("add", "create", "insert")) {
+        CreateObject("ball", "", "4");
+      }
+    }
+
+    //
+    // 0: [["create", "VB"], ["a", "DT"], ["ball", "NN"], [".", "."]]
+    // 1: [["create", "VB"], ["ball", "NN"], [".", "."]]
+    // 2: [["create", "VB"], ["x1", "NN"], ["as", "IN"], ["ball", "NN"], [".", "."]]
+    // 3: [["create", "VB"], ["x2", "NN"], ["as", "IN"], ["a", "DT"], ["ball", "NN"], [".", "."]]
+    // 4: [["create", "VB"], ["a", "DT"], ["ball", "NN"], ["as", "IN"], ["x5", "NN"], [".", "."]]
+    // 5: [["create", "VB"], ["ball", "NN"], ["as", "IN"], ["x6", "NN"], [".", "."]]
+
+    // 6: [["create", "VB"], ["a", "DT"], ["white", "JJ"], ["ball", "NN"], [".", "."]]
+    // 7: [["create", "VB"], ["white", "JJ"], ["ball", "NN"], [".", "."]]
+    // 8: [["create", "VB"], ["x1", "NN"], ["as", "IN"], ["white", "JJ"], ["ball", "NN"], [".", "."]]
+    // 9: [["create", "VB"], ["x2", "NN"], ["as", "IN"], ["a", "DT"], ["white", "JJ"], ["ball", "NN"],…]
+    // 10: [["create", "VB"], ["a", "DT"], ["white", "JJ"], ["ball", "NN"], ["as", "IN"], ["x5", "NN"],…]
+    // 11: [["create", "VB"], ["white", "JJ"], ["ball", "NN"], ["as", "IN"], ["x6", "NN"], [".", "."]]
+
+    // 12: [["create", "VB"], ["two", "CD"], ["balls", "NNS"], [".", "."]]
+    // 13: [["create", "VB"], ["x1", "NN"], ["and", "CC"], ["x2", "NN"], ["as", "IN"], ["two", "CD"],…]
+    // 14: [["create", "VB"], ["x3", "NN"], ["and", "CC"], ["x4", "NN"], ["as", "IN"], ["balls", "NNS"],…]
+    // 15: [["create", "VB"], ["three", "CD"], ["balls", "NNS"], ["as", "IN"], ["x5", "NN"], [",", ","],…]
+
+    // 16: [["create", "VB"], ["two", "CD"], ["blue", "JJ"], ["balls", "NNS"], [".", "."]]
+    // 17: [["create", "VB"], ["x1", "NN"], ["and", "CC"], ["x2", "NN"], ["as", "IN"], ["two", "CD"],…]
+    // 18: [["create", "VB"], ["x3", "NN"], ["and", "CC"], ["x4", "NN"], ["as", "IN"], ["blue", "JJ"],…]
+    // 19: [["create", "VB"], ["three", "CD"], ["blue", "JJ"], ["balls", "NNS"], ["as", "IN"], ["x5", "NN"],…]
+    // 20: [["create", "VB"], ["a", "DT"], ["cube", "NN"], ["as", "IN"], ["y3", "NN"], [".", "."]]
 
 
-        //creating new element
-        AddObject(scriptline);
+    // 21: [["add", "VB"], ["y2", "NN"], ["as", "IN"], ["a", "DT"], ["cube", "NN"], [".", "."]]
+    // 22: [["add", "VB"], ["a", "DT"], ["ball", "NN"], [".", "."]]
+    // 23: [["create", "VB"], ["a", "DT"], ["ball", "NN"], [".", "."]]
+    // 24: [["color", "NN"], ["x", "NN"], ["as", "IN"], ["blue", "JJ"], [".", "."]]
+    // 25: [["move", "VB"], ["x", "CC"], ["right", "JJ"], ["100", "CD"], [".", "."]]
+    // 26: [["move", "VB"], ["y", "RB"], ["up", "RP"], ["100", "CD"], [".", "."]]
+    // 27: [["move", "NN"], ["y", "RB"], ["left", "VBD"], ["100", "CD"], [".", "."]]
+    // 28: [["move", "NN"], ["x", "NN"], ["up", "IN"], ["50", "CD"], [".", "."]]
+    // 29: [["color", "NN"], ["y", "NN"], ["as", "IN"], ["green", "JJ"], [".", "."]]
 
+    if (1 == 2) {
+      var script1 = $('#spellscript').val().split('\n');
 
-        //changing color
-        re = /color (.*) as (.*)/gi;
-        m = re.exec(scriptline);
-        if (m !== null) {
-          m1 = m[1];
-          m2 = m[2];
-          m1 = m1.trim();
-          m2 = m2.trim();
-          console.log(m1 + ' - ' + m2);
+      for (var i = 0; i < script1.length; i++) {
+        scriptline = script1[i].trim();
+        console.log(scriptline);
 
-          $("#" + m1).css({"background-color": m2});
+        if (scriptline.indexOf("//") === 0 || scriptline === "") {
+
         }
+        else {
 
 
-        //changing position
-        re = /move (.*) (left|right|up|down) (.*)/gi;
-        m = re.exec(scriptline);
-        if (m !== null) {
-          m1 = m[1];
-          m2 = m[2];
-          m3 = m[3];
-          m1 = m1.trim();
-          m2 = m2.trim();
-          m3 = m3.trim();
-          m3 = parseInt(m3);
-          console.log(m1 + ' - ' + m2 + ' - ' + m3);
+          //creating new element
+          AddObject(scriptline);
 
-          if (m2 === 'left') $("#" + m1).css({"left": $("#" + m1).position().left - m3});
-          if (m2 === 'right') $("#" + m1).css({"left": $("#" + m1).position().left + m3});
-          if (m2 === 'up') $("#" + m1).css({"top": ($("#" + m1).position().top - m3)});
-          if (m2 === 'down') $("#" + m1).css({"top": $("#" + m1).position().top + m3});
+
+          //changing color
+          re = /color (.*) as (.*)/gi;
+          m = re.exec(scriptline);
+          if (m !== null) {
+            m1 = m[1];
+            m2 = m[2];
+            m1 = m1.trim();
+            m2 = m2.trim();
+            console.log(m1 + ' - ' + m2);
+
+            $("#" + m1).css({"background-color": m2});
+          }
+
+
+          //changing position
+          re = /move (.*) (left|right|up|down) (.*)/gi;
+          m = re.exec(scriptline);
+          if (m !== null) {
+            m1 = m[1];
+            m2 = m[2];
+            m3 = m[3];
+            m1 = m1.trim();
+            m2 = m2.trim();
+            m3 = m3.trim();
+            m3 = parseInt(m3);
+            console.log(m1 + ' - ' + m2 + ' - ' + m3);
+
+            if (m2 === 'left') $("#" + m1).css({"left": $("#" + m1).position().left - m3});
+            if (m2 === 'right') $("#" + m1).css({"left": $("#" + m1).position().left + m3});
+            if (m2 === 'up') $("#" + m1).css({"top": ($("#" + m1).position().top - m3)});
+            if (m2 === 'down') $("#" + m1).css({"top": $("#" + m1).position().top + m3});
+          }
+
         }
-
       }
     }
 
@@ -234,3 +343,42 @@ $(document).ready(function () {
 
 
 });
+
+
+// Number Tag Description
+//  1.	CC	Coordinating conjunction
+//  2.	CD	Cardinal number
+//  3.	DT	Determiner
+//  4.	EX	Existential there
+//  5.	FW	Foreign word
+//  6.	IN	Preposition or subordinating conjunction
+//  7.	JJ	Adjective
+//  8.	JJR	Adjective, comparative
+//  9.	JJS	Adjective, superlative
+// 10.	LS	List item marker
+// 11.	MD	Modal
+// 12.	NN	Noun, singular or mass
+// 13.	NNS	Noun, plural
+// 14.	NNP	Proper noun, singular
+// 15.	NNPS	Proper noun, plural
+// 16.	PDT	Predeterminer
+// 17.	POS	Possessive ending
+// 18.	PRP	Personal pronoun
+// 19.	PRP$	Possessive pronoun
+// 20.	RB	Adverb
+// 21.	RBR	Adverb, comparative
+// 22.	RBS	Adverb, superlative
+// 23.	RP	Particle
+// 24.	SYM	Symbol
+// 25.	TO	to
+// 26.	UH	Interjection
+// 27.	VB	Verb, base form
+// 28.	VBD	Verb, past tense
+// 29.	VBG	Verb, gerund or present participle
+// 30.	VBN	Verb, past participle
+// 31.	VBP	Verb, non-3rd person singular present
+// 32.	VBZ	Verb, 3rd person singular present
+// 33.	WDT	Wh-determiner
+// 34.	WP	Wh-pronoun
+// 35.	WP$	Possessive wh-pronoun
+// 36.	WRB	Wh-adverb
