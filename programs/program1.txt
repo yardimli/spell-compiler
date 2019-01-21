@@ -1,6 +1,6 @@
 //ways to create
 //
-create a ball
+create a red ball
 create ball
 create x1 as ball
 create x2 as a ball
