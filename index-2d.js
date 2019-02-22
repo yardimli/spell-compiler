@@ -35,16 +35,16 @@ function LoadProgramFile(face_name) {
       ParsedSource = data["parsed"];
       for (x in ParsedSource) {
         var newline = "";
-        var linex = ParsedSource[x];
-        for (y in linex) {
-          if (linex[y][0] === ".") {
+        var CurrentLine = ParsedSource[x];
+        for (y in CurrentLine) {
+          if (CurrentLine[y][0] === ".") {
             newline += "\n";
           }
           else {
             if (newline !== "") {
               newline += " ";
             }
-            newline += linex[y][0];
+            newline += CurrentLine[y][0];
           }
         }
         newlines += newline;
@@ -53,6 +53,49 @@ function LoadProgramFile(face_name) {
       $("#spellscript").val(data["raw"]);
       //$("#spellscript").val(newlines);
 //      console.log("Status: " + status);
+    },
+    error: function (data, status) {
+      console.log("error Status: " + status);
+    }
+
+  });
+}
+
+//---------------------------------------------------------------------------------------------------------------------------
+function ParseSource(Source,callback) {
+  object_counter = 0;
+  LastXPos = 100;
+  LastYPos = 100;
+
+
+  var UrlToGet = "parse_temp_program.php";
+  var data = {"source": Source};
+
+  $.ajax({
+    type: "POST",
+    url: UrlToGet,
+    data: data,
+    dataType: "json",
+    success: function (data, status) {
+      var newlines = "";
+      ParsedSource = data["parsed"];
+      for (x in ParsedSource) {
+        var newline = "";
+        var CurrentLine = ParsedSource[x];
+        for (y in CurrentLine) {
+          if (CurrentLine[y][0] === ".") {
+            newline += "\n";
+          }
+          else {
+            if (newline !== "") {
+              newline += " ";
+            }
+            newline += CurrentLine[y][0];
+          }
+        }
+        newlines += newline;
+      }
+      callback();
     },
     error: function (data, status) {
       console.log("error Status: " + status);
@@ -122,182 +165,207 @@ $(document).ready(function () {
 
   $('#compilebtn').on('click', function () {
 
-    $("#DrawArea").html("");
-    LastXPos = 100;
-    LastYPos = 100;
+    ParseSource($("#spellscript").val(), function () {
+      $("#DrawArea").html("");
+      LastXPos = 100;
+      LastYPos = 100;
 
+      var ReservedNouns = ["ball","cube"];
 
-    for (var LineNumber = 0; LineNumber < ParsedSource.length; LineNumber++) {
-      var newline = "";
-      var linex = ParsedSource[LineNumber];
+      for (var LineNumber = 0; LineNumber < ParsedSource.length; LineNumber++) {
+        var CurrentLine = ParsedSource[LineNumber];
 
-      var operation = "";
-      var object_x = "";
-      var color_x = "";
+        var operation = "";
+        var object_x = "";
+        var color_x = "";
 
-      for (var WordNumber = 0; WordNumber < linex.length; WordNumber++) {
-        console.log(WordNumber + " " + linex[WordNumber][0] + " " + linex[WordNumber][1] + " " + linex.length);
-        linex[WordNumber][2] = false;
-      }
+        for (var WordNumber = 0; WordNumber < CurrentLine.length; WordNumber++) {
+          console.log(WordNumber + " " + CurrentLine[WordNumber][0] + " " + CurrentLine[WordNumber][1] + " " + CurrentLine.length);
+          CurrentLine[WordNumber][2] = false;
+        }
 
-      //loop to get verb and object definition
-      for (var WordNumber = 0; WordNumber < linex.length; WordNumber++) {
+        //loop to get variable name options:
+        //x as book,
+        //x as yellow book,
+        //x as a book
+        //x as a yellow book
+        //book as x
+        //yellow book as x
+        //book called x
+        //yellow book called x
+        //book named x
+        //yellow book named x
 
-        if (linex[WordNumber][1] === "VB" && WordNumber + 1 < linex.length) {
-          operation = linex[WordNumber][0];
-          linex[WordNumber][2] = true;
+        for (var WordNumber = 0; WordNumber < CurrentLine.length; WordNumber++) {
 
-          if (linex[WordNumber + 1][1] === "NN") {
-            object_x = linex[WordNumber + 1][0];
-            linex[WordNumber + 1][2] = true;
+          if (CurrentLine[WordNumber][1] === "IN" && CurrentLine[WordNumber][0].toLowerCase()  === "as" && WordNumber + 1 < CurrentLine.length) {
+
+            var ReservedNounPositon = "";
+            if (ReservedNouns.indexOf( CurrentLine[WordNumber-1][0].toLowerCase() === -1)) { } else { ReservedNounPositon = "left"; }
+            if (ReservedNouns.indexOf( CurrentLine[WordNumber+1][0].toLowerCase() === -1)) { } else { ReservedNounPositon = "right"; }
+
           }
         }
 
-        if (linex[WordNumber][1] === "DT") {
+        //loop to get verb and object definition
+        for (var WordNumber = 0; WordNumber < CurrentLine.length; WordNumber++) {
 
-          var FoundSomething = false;
+          if (CurrentLine[WordNumber][1] === "VB" && WordNumber + 1 < CurrentLine.length) {
+            operation = CurrentLine[WordNumber][0];
+            CurrentLine[WordNumber][2] = true;
 
-          if (WordNumber + 2 < linex.length && !FoundSomething) {
-            if (linex[WordNumber + 1][1] === "JJ" && linex[WordNumber + 2][1] === "NN") {
-              color_x = linex[WordNumber + 1][0];
-              object_x = linex[WordNumber + 2][0];
-
-              linex[WordNumber][2] = true;
-              linex[WordNumber + 1][2] = true;
-              linex[WordNumber + 2][2] = true;
-              FoundSomething = true;
+            if (CurrentLine[WordNumber + 1][1] === "NN") {
+              object_x = CurrentLine[WordNumber + 1][0];
+              CurrentLine[WordNumber + 1][2] = true;
             }
           }
 
-          if (WordNumber + 1 < linex.length && !FoundSomething) {
-            if (linex[WordNumber + 1][1] === "NN") {
-              object_x = linex[WordNumber + 1][0];
+          if (CurrentLine[WordNumber][1] === "DT") {
 
-              linex[WordNumber][2] = true;
-              linex[WordNumber + 1][2] = true;
-              FoundSomething = true;
+            var FoundSomething = false;
+
+            if (WordNumber + 2 < CurrentLine.length && !FoundSomething) {
+              if (CurrentLine[WordNumber + 1][1] === "JJ" && CurrentLine[WordNumber + 2][1] === "NN") {
+                color_x = CurrentLine[WordNumber + 1][0];
+                object_x = CurrentLine[WordNumber + 2][0];
+
+                CurrentLine[WordNumber][2] = true;
+                CurrentLine[WordNumber + 1][2] = true;
+                CurrentLine[WordNumber + 2][2] = true;
+                FoundSomething = true;
+              }
+            }
+
+            if (WordNumber + 1 < CurrentLine.length && !FoundSomething) {
+              if (CurrentLine[WordNumber + 1][1] === "NN") {
+                object_x = CurrentLine[WordNumber + 1][0];
+
+                CurrentLine[WordNumber][2] = true;
+                CurrentLine[WordNumber + 1][2] = true;
+                FoundSomething = true;
+              }
+            }
+
+          }
+        }
+
+        //loop to get object name if any
+        for (var WordNumber = 0; WordNumber < CurrentLine.length; WordNumber++) {
+
+          if (WordNumber + 1 < CurrentLine.length && !FoundSomething) {
+            if (CurrentLine[WordNumber][1] === "IN" && CurrentLine[WordNumber][0].toLowerCase() === "as") {
+
             }
           }
+        }
 
+
+        if (operation.toLowerCase().isInList("add", "create", "insert")) {
+          console.log("RUNNING: " + operation + " " + object_x + " " + color_x);
+          CreateObject(object_x, "", color_x, "4");
         }
       }
 
-      //loop to get object name if any
-      for (var WordNumber = 0; WordNumber < linex.length; WordNumber++) {
+      //
+      // 0: [["create", "VB"], ["a", "DT"], ["ball", "NN"], [".", "."]]
+      // 1: [["create", "VB"], ["ball", "NN"], [".", "."]]
+      // 2: [["create", "VB"], ["x1", "NN"], ["as", "IN"], ["ball", "NN"], [".", "."]]
+      // 3: [["create", "VB"], ["x2", "NN"], ["as", "IN"], ["a", "DT"], ["ball", "NN"], [".", "."]]
+      // 4: [["create", "VB"], ["a", "DT"], ["ball", "NN"], ["as", "IN"], ["x5", "NN"], [".", "."]]
+      // 5: [["create", "VB"], ["ball", "NN"], ["as", "IN"], ["x6", "NN"], [".", "."]]
 
-        if (WordNumber + 1 < linex.length && !FoundSomething) {
-        if (linex[WordNumber][1] === "IN" && linex[WordNumber][0].toLowerCase() === "as") {
+      // 6: [["create", "VB"], ["a", "DT"], ["white", "JJ"], ["ball", "NN"], [".", "."]]
+      // 7: [["create", "VB"], ["white", "JJ"], ["ball", "NN"], [".", "."]]
+      // 8: [["create", "VB"], ["x1", "NN"], ["as", "IN"], ["white", "JJ"], ["ball", "NN"], [".", "."]]
+      // 9: [["create", "VB"], ["x2", "NN"], ["as", "IN"], ["a", "DT"], ["white", "JJ"], ["ball", "NN"],…]
+      // 10: [["create", "VB"], ["a", "DT"], ["white", "JJ"], ["ball", "NN"], ["as", "IN"], ["x5", "NN"],…]
+      // 11: [["create", "VB"], ["white", "JJ"], ["ball", "NN"], ["as", "IN"], ["x6", "NN"], [".", "."]]
 
-        }
-      }
-    }
+      // 12: [["create", "VB"], ["two", "CD"], ["balls", "NNS"], [".", "."]]
+      // 13: [["create", "VB"], ["x1", "NN"], ["and", "CC"], ["x2", "NN"], ["as", "IN"], ["two", "CD"],…]
+      // 14: [["create", "VB"], ["x3", "NN"], ["and", "CC"], ["x4", "NN"], ["as", "IN"], ["balls", "NNS"],…]
+      // 15: [["create", "VB"], ["three", "CD"], ["balls", "NNS"], ["as", "IN"], ["x5", "NN"], [",", ","],…]
 
-
-    if (operation.toLowerCase().isInList("add", "create", "insert")) {
-      console.log("RUNNING: " + operation + " " + object_x + " " + color_x);
-      CreateObject(object_x, "", color_x, "4");
-    }
-  }
-
-  //
-  // 0: [["create", "VB"], ["a", "DT"], ["ball", "NN"], [".", "."]]
-  // 1: [["create", "VB"], ["ball", "NN"], [".", "."]]
-  // 2: [["create", "VB"], ["x1", "NN"], ["as", "IN"], ["ball", "NN"], [".", "."]]
-  // 3: [["create", "VB"], ["x2", "NN"], ["as", "IN"], ["a", "DT"], ["ball", "NN"], [".", "."]]
-  // 4: [["create", "VB"], ["a", "DT"], ["ball", "NN"], ["as", "IN"], ["x5", "NN"], [".", "."]]
-  // 5: [["create", "VB"], ["ball", "NN"], ["as", "IN"], ["x6", "NN"], [".", "."]]
-
-  // 6: [["create", "VB"], ["a", "DT"], ["white", "JJ"], ["ball", "NN"], [".", "."]]
-  // 7: [["create", "VB"], ["white", "JJ"], ["ball", "NN"], [".", "."]]
-  // 8: [["create", "VB"], ["x1", "NN"], ["as", "IN"], ["white", "JJ"], ["ball", "NN"], [".", "."]]
-  // 9: [["create", "VB"], ["x2", "NN"], ["as", "IN"], ["a", "DT"], ["white", "JJ"], ["ball", "NN"],…]
-  // 10: [["create", "VB"], ["a", "DT"], ["white", "JJ"], ["ball", "NN"], ["as", "IN"], ["x5", "NN"],…]
-  // 11: [["create", "VB"], ["white", "JJ"], ["ball", "NN"], ["as", "IN"], ["x6", "NN"], [".", "."]]
-
-  // 12: [["create", "VB"], ["two", "CD"], ["balls", "NNS"], [".", "."]]
-  // 13: [["create", "VB"], ["x1", "NN"], ["and", "CC"], ["x2", "NN"], ["as", "IN"], ["two", "CD"],…]
-  // 14: [["create", "VB"], ["x3", "NN"], ["and", "CC"], ["x4", "NN"], ["as", "IN"], ["balls", "NNS"],…]
-  // 15: [["create", "VB"], ["three", "CD"], ["balls", "NNS"], ["as", "IN"], ["x5", "NN"], [",", ","],…]
-
-  // 16: [["create", "VB"], ["two", "CD"], ["blue", "JJ"], ["balls", "NNS"], [".", "."]]
-  // 17: [["create", "VB"], ["x1", "NN"], ["and", "CC"], ["x2", "NN"], ["as", "IN"], ["two", "CD"],…]
-  // 18: [["create", "VB"], ["x3", "NN"], ["and", "CC"], ["x4", "NN"], ["as", "IN"], ["blue", "JJ"],…]
-  // 19: [["create", "VB"], ["three", "CD"], ["blue", "JJ"], ["balls", "NNS"], ["as", "IN"], ["x5", "NN"],…]
-  // 20: [["create", "VB"], ["a", "DT"], ["cube", "NN"], ["as", "IN"], ["y3", "NN"], [".", "."]]
+      // 16: [["create", "VB"], ["two", "CD"], ["blue", "JJ"], ["balls", "NNS"], [".", "."]]
+      // 17: [["create", "VB"], ["x1", "NN"], ["and", "CC"], ["x2", "NN"], ["as", "IN"], ["two", "CD"],…]
+      // 18: [["create", "VB"], ["x3", "NN"], ["and", "CC"], ["x4", "NN"], ["as", "IN"], ["blue", "JJ"],…]
+      // 19: [["create", "VB"], ["three", "CD"], ["blue", "JJ"], ["balls", "NNS"], ["as", "IN"], ["x5", "NN"],…]
+      // 20: [["create", "VB"], ["a", "DT"], ["cube", "NN"], ["as", "IN"], ["y3", "NN"], [".", "."]]
 
 
-  // 21: [["add", "VB"], ["y2", "NN"], ["as", "IN"], ["a", "DT"], ["cube", "NN"], [".", "."]]
-  // 22: [["add", "VB"], ["a", "DT"], ["ball", "NN"], [".", "."]]
-  // 23: [["create", "VB"], ["a", "DT"], ["ball", "NN"], [".", "."]]
-  // 24: [["color", "NN"], ["x", "NN"], ["as", "IN"], ["blue", "JJ"], [".", "."]]
-  // 25: [["move", "VB"], ["x", "CC"], ["right", "JJ"], ["100", "CD"], [".", "."]]
-  // 26: [["move", "VB"], ["y", "RB"], ["up", "RP"], ["100", "CD"], [".", "."]]
-  // 27: [["move", "NN"], ["y", "RB"], ["left", "VBD"], ["100", "CD"], [".", "."]]
-  // 28: [["move", "NN"], ["x", "NN"], ["up", "IN"], ["50", "CD"], [".", "."]]
-  // 29: [["color", "NN"], ["y", "NN"], ["as", "IN"], ["green", "JJ"], [".", "."]]
+      // 21: [["add", "VB"], ["y2", "NN"], ["as", "IN"], ["a", "DT"], ["cube", "NN"], [".", "."]]
+      // 22: [["add", "VB"], ["a", "DT"], ["ball", "NN"], [".", "."]]
+      // 23: [["create", "VB"], ["a", "DT"], ["ball", "NN"], [".", "."]]
+      // 24: [["color", "NN"], ["x", "NN"], ["as", "IN"], ["blue", "JJ"], [".", "."]]
+      // 25: [["move", "VB"], ["x", "CC"], ["right", "JJ"], ["100", "CD"], [".", "."]]
+      // 26: [["move", "VB"], ["y", "RB"], ["up", "RP"], ["100", "CD"], [".", "."]]
+      // 27: [["move", "NN"], ["y", "RB"], ["left", "VBD"], ["100", "CD"], [".", "."]]
+      // 28: [["move", "NN"], ["x", "NN"], ["up", "IN"], ["50", "CD"], [".", "."]]
+      // 29: [["color", "NN"], ["y", "NN"], ["as", "IN"], ["green", "JJ"], [".", "."]]
 
-
-});
-
-
-LoadProgramFile("program1.txt");
-$("#spellname").val("program1.txt");
-//---------------------------------------------------------------------------------------------------------------------------
-var UrlToGet = "load_programs.php";
-
-var data = {};
-
-$.ajax({
-  url: UrlToGet,
-  data: data,
-  dataType: "json",
-  success: function (data, status) {
-    for (program in data) {
-//        console.log(data[program]);
-      $("#program_list").append('<option value="' + data[program] + '">' + data[program] + '</option>\n');
-    }
-
-    //---------------------------------------------------------------------------------------------------------------------------
-    $("#program_list").on('change', function (e) {
-      LoadProgramFile($(this).val());
-      $("#spellname").val($(this).val());
-      e.preventDefault();
     });
+
+  });
+
+
+  LoadProgramFile("program1.txt");
+  $("#spellname").val("program1.txt");
+//---------------------------------------------------------------------------------------------------------------------------
+  var UrlToGet = "load_programs.php";
+
+  var data = {};
+
+  $.ajax({
+    url: UrlToGet,
+    data: data,
+    dataType: "json",
+    success: function (data, status) {
+      for (program in data) {
+//        console.log(data[program]);
+        $("#program_list").append('<option value="' + data[program] + '">' + data[program] + '</option>\n');
+      }
+
+      //---------------------------------------------------------------------------------------------------------------------------
+      $("#program_list").on('change', function (e) {
+        LoadProgramFile($(this).val());
+        $("#spellname").val($(this).val());
+        e.preventDefault();
+      });
 
 //      console.log("Status: " + status);
-  },
-  error: function (data, status) {
-    console.log("error Status: " + status);
-  }
-});
+    },
+    error: function (data, status) {
+      console.log("error Status: " + status);
+    }
+  });
 
 //---------------------------------------------------------------------------------------------------------------------------
-$("#save_btn").on('click', function (e) {
-  console.log("save program press");
-  if ($("#spellname").val() !== "") {
-    console.log("save program");
+  $("#save_btn").on('click', function (e) {
+    console.log("save program press");
+    if ($("#spellname").val() !== "") {
+      console.log("save program");
 
-    var UrlToGet = "save_program.php";
-    var data = {"program_code": $("#spellscript").val(), "program_name": $("#spellname").val()};
+      var UrlToGet = "save_program.php";
+      var data = {"program_code": $("#spellscript").val(), "program_name": $("#spellname").val()};
 
-    $.ajax({
-      type: "POST",
-      url: UrlToGet,
-      data: data,
-      dataType: "text",
-      success: function (data, status) {
-        console.log("Status: " + status);
-      },
-      error: function (data, status) {
-        console.log("error Status: " + status);
-      }
-    });
-  }
-  else {
-    alert("program name?");
-  }
-  e.preventDefault();
-});
+      $.ajax({
+        type: "POST",
+        url: UrlToGet,
+        data: data,
+        dataType: "text",
+        success: function (data, status) {
+          console.log("Status: " + status);
+        },
+        error: function (data, status) {
+          console.log("error Status: " + status);
+        }
+      });
+    }
+    else {
+      alert("program name?");
+    }
+    e.preventDefault();
+  });
 
 
 })
