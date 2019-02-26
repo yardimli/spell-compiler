@@ -35,16 +35,16 @@ function LoadProgramFile(face_name) {
       ParsedSource = data["parsed"];
       for (x in ParsedSource) {
         var newline = "";
-        var CurrentLine = ParsedSource[x];
-        for (y in CurrentLine) {
-          if (CurrentLine[y][0] === ".") {
+        var currentLine = ParsedSource[x];
+        for (y in currentLine) {
+          if (currentLine[y][0] === ".") {
             newline += "\n";
           }
           else {
             if (newline !== "") {
               newline += " ";
             }
-            newline += CurrentLine[y][0];
+            newline += currentLine[y][0];
           }
         }
         newlines += newline;
@@ -62,7 +62,7 @@ function LoadProgramFile(face_name) {
 }
 
 //---------------------------------------------------------------------------------------------------------------------------
-function ParseSource(Source,callback) {
+function ParseSource(Source, callback) {
   object_counter = 0;
   LastXPos = 100;
   LastYPos = 100;
@@ -81,16 +81,16 @@ function ParseSource(Source,callback) {
       ParsedSource = data["parsed"];
       for (x in ParsedSource) {
         var newline = "";
-        var CurrentLine = ParsedSource[x];
-        for (y in CurrentLine) {
-          if (CurrentLine[y][0] === ".") {
+        var currentLine = ParsedSource[x];
+        for (y in currentLine) {
+          if (currentLine[y][0] === ".") {
             newline += "\n";
           }
           else {
             if (newline !== "") {
               newline += " ";
             }
-            newline += CurrentLine[y][0];
+            newline += currentLine[y][0];
           }
         }
         newlines += newline;
@@ -121,12 +121,6 @@ function CreateObject(obj_type, obj_name, obj_color, rule_id) {
 
   console.log("adding a '" + obj_type + "' object name '" + obj_name + "(" + obj_color + ")" + "' (rule " + rule_id + ")");
 
-  LastXPos += 100;
-  if (LastXPos > 600) {
-    LastXPos = 100;
-    LastYPos += 100;
-  }
-
   if (obj_type === 'ball') {
     $("#DrawArea").append($("<div/>", {
       "id": obj_name,
@@ -142,6 +136,14 @@ function CreateObject(obj_type, obj_name, obj_color, rule_id) {
         backgroundColor: obj_color
       }
     }));
+
+    LastXPos += 100;
+    if (LastXPos > 600) {
+      LastXPos = 100;
+      LastYPos += 100;
+    }
+
+    return obj_name;
   }
   else if (obj_type === 'cube') {
     $("#DrawArea").append($("<div>", {
@@ -156,9 +158,48 @@ function CreateObject(obj_type, obj_name, obj_color, rule_id) {
         border: "thin " + obj_color + " dashed"
       }
     }));
+
+    LastXPos += 100;
+    if (LastXPos > 600) {
+      LastXPos = 100;
+      LastYPos += 100;
+    }
+
+    return obj_name;
   }
+  else if (obj_type === 'triangle') {
+    $("#DrawArea").append($("<div>", {
+      "id": obj_name,
+      "data-obj_type": obj_type,
+      "css": {
+        position: "absolute",
+        top: LastYPos + "px",
+        left: LastXPos + "px",
+        borderBottom: "solid 50px "+obj_color,
+        borderRight: "solid 50px "+obj_color,
+        borderLeft: "solid 50px transparent",
+        borderTop: "solid 50px transparent"
+      }
+    }));
+
+    LastXPos += 100;
+    if (LastXPos > 600) {
+      LastXPos = 100;
+      LastYPos += 100;
+    }
+
+    return obj_name;
+  } else
+  {
+    var object_create_error = "no object selected";
+    return object_create_error;
+  }
+
+
+
 }
 
+var CurrentSelectedItem = "";
 
 $(document).ready(function () {
 
@@ -170,138 +211,157 @@ $(document).ready(function () {
       LastXPos = 100;
       LastYPos = 100;
 
-      var ReservedNouns = ["ball","cube"];
+      var reservedNouns = ["ball", "cube","triangle"];
+      var reservedSturcture = ["DT JJ NN", "JJ NN", "DT NN","NN"];
 
       for (var LineNumber = 0; LineNumber < ParsedSource.length; LineNumber++) {
-        var CurrentLine = ParsedSource[LineNumber];
+        var currentLine = ParsedSource[LineNumber];
 
-        var operation = "";
-        var object_x = "";
-        var color_x = "";
-
-        for (var WordNumber = 0; WordNumber < CurrentLine.length; WordNumber++) {
-          console.log(WordNumber + " " + CurrentLine[WordNumber][0] + " " + CurrentLine[WordNumber][1] + " " + CurrentLine.length);
-          CurrentLine[WordNumber][2] = false;
+        console.log("--------------------------");
+        console.log("sentence:");
+        for (var wordNumber = 0; wordNumber < currentLine.length; wordNumber++) {
+          console.log(wordNumber + " " + currentLine[wordNumber][0] + " " + currentLine[wordNumber][1] + " " + currentLine.length);
+          currentLine[wordNumber][2] = false;
         }
 
-        //loop to get variable name options:
-        //x as book,
-        //x as yellow book,
-        //x as a book
-        //x as a yellow book
-        //book as x
-        //yellow book as x
-        //book called x
-        //yellow book called x
-        //book named x
-        //yellow book named x
+        //for naming item(s)
+        if (currentLine[wordNumber][0].toLowerCase() === "call" || currentLine[wordNumber][0].toLowerCase() === "name") {
 
-        for (var WordNumber = 0; WordNumber < CurrentLine.length; WordNumber++) {
-
-          if (CurrentLine[WordNumber][1] === "IN" && CurrentLine[WordNumber][0].toLowerCase()  === "as" && WordNumber + 1 < CurrentLine.length) {
-
-            var ReservedNounPositon = "";
-            if (ReservedNouns.indexOf( CurrentLine[WordNumber-1][0].toLowerCase() === -1)) { } else { ReservedNounPositon = "left"; }
-            if (ReservedNouns.indexOf( CurrentLine[WordNumber+1][0].toLowerCase() === -1)) { } else { ReservedNounPositon = "right"; }
-
-          }
         }
+        else
 
-        //loop to get verb and object definition
-        for (var WordNumber = 0; WordNumber < CurrentLine.length; WordNumber++) {
+        //for making a selection
+        if (currentLine[wordNumber][0].toLowerCase() === "select") {
 
-          if (CurrentLine[WordNumber][1] === "VB" && WordNumber + 1 < CurrentLine.length) {
-            operation = CurrentLine[WordNumber][0];
-            CurrentLine[WordNumber][2] = true;
+        }
+        else {
+          //for adding items
+          var operation = "";
+          var object_x = "";
+          var color_x = "";
+          var object_name = "";
 
-            if (CurrentLine[WordNumber + 1][1] === "NN") {
-              object_x = CurrentLine[WordNumber + 1][0];
-              CurrentLine[WordNumber + 1][2] = true;
+
+          //loop and get object to create with its properties replace with placeholder NN
+          for (var structureNumber = 0; structureNumber < reservedSturcture.length; structureNumber++) {
+            var xStructure = reservedSturcture[structureNumber];
+            var xStructureParts = xStructure.split(" ");
+            var xStructureMatch = false;
+            var xStructureStart = -1;
+            console.log(xStructureParts);
+
+            for (var wordNumber = 0; wordNumber < currentLine.length; wordNumber++) {
+
+              if (currentLine[wordNumber][1] === xStructureParts[0] && wordNumber + xStructureParts.length - 1 < currentLine.length) {
+                xStructureMatch = true;
+                xStructureStart = wordNumber;
+                console.log("looking for structure: " + xStructure + " " + xStructureParts.length);
+
+                if (xStructureParts.length === 1) {
+                  if (currentLine[wordNumber][1] === "NN" && reservedNouns.indexOf(currentLine[wordNumber][0].toLowerCase()) !== -1) {
+                    object_x = currentLine[wordNumber][0];
+                  }
+                  else {
+                    xStructureMatch = false;
+                  }
+                }
+                else {
+                  for (var structurePartNumber = 0; structurePartNumber < xStructureParts.length; structurePartNumber++) {
+                    console.log(currentLine[wordNumber + structurePartNumber][1] + "  === " + xStructureParts[structurePartNumber]);
+
+                    if (currentLine[wordNumber + structurePartNumber][1] === xStructureParts[structurePartNumber]) {
+                      if (currentLine[wordNumber + structurePartNumber][1] === "NN" && reservedNouns.indexOf(currentLine[wordNumber + structurePartNumber][0].toLowerCase()) !== -1) {
+                        object_x = currentLine[wordNumber + structurePartNumber][0];
+                      }
+                      else if (currentLine[wordNumber + structurePartNumber][1] === "NN") {
+                        xStructureMatch = false;
+                      }
+
+                      if (currentLine[wordNumber + structurePartNumber][1] === "JJ") {
+                        color_x = currentLine[wordNumber + structurePartNumber][0];
+                      }
+                    }
+                    else {
+                      xStructureMatch = false;
+                    }
+                  }
+                }
+              }
+              if (xStructureMatch) {
+                break;
+              }
+            }
+            if (xStructureMatch) {
+              currentLine.splice(xStructureStart, xStructureParts.length, ["object_word", "NN", false]);
+              break;
             }
           }
 
-          if (CurrentLine[WordNumber][1] === "DT") {
+          if (xStructureMatch) {
+            console.log("Found Object Structure: start:" + xStructureStart + ", object:" + object_x + ", color:" + color_x);
+            console.log(currentLine);
 
-            var FoundSomething = false;
+            //loop to get variable name options:
+            //x as book,
+            //x as yellow book,
+            //x as a book
+            //x as a yellow book
+            //book as x
+            //yellow book as x
 
-            if (WordNumber + 2 < CurrentLine.length && !FoundSomething) {
-              if (CurrentLine[WordNumber + 1][1] === "JJ" && CurrentLine[WordNumber + 2][1] === "NN") {
-                color_x = CurrentLine[WordNumber + 1][0];
-                object_x = CurrentLine[WordNumber + 2][0];
+            //book called x
+            //yellow book called x
 
-                CurrentLine[WordNumber][2] = true;
-                CurrentLine[WordNumber + 1][2] = true;
-                CurrentLine[WordNumber + 2][2] = true;
-                FoundSomething = true;
+            //book named x
+            //yellow book named x
+
+            for (var wordNumber = 0; wordNumber < currentLine.length; wordNumber++) {
+
+              if (currentLine[wordNumber][1] === "IN" && currentLine[wordNumber][0].toLowerCase() === "as" && wordNumber + 1 < currentLine.length) {
+
+                var reservedNounPosition = "";
+
+                if (currentLine[wordNumber - 1][0].toLowerCase() === "object_word") {
+                  reservedNounPosition = "left";
+                }
+
+                if (currentLine[wordNumber + 1][0].toLowerCase() === "object_word") {
+                  reservedNounPosition = "right";
+                }
+                console.log("---" + reservedNounPosition);
+
+                if (reservedNounPosition !== "") {
+                  if (reservedNounPosition === "left") {
+                    object_name = currentLine[wordNumber + 1][0].toLowerCase();
+                    currentLine.splice(wordNumber, 2);
+                    console.log(currentLine);
+                  }
+                  else if (reservedNounPosition === "right") {
+                    object_name = currentLine[wordNumber - 1][0].toLowerCase();
+                    currentLine.splice(wordNumber - 1, 2);
+                    console.log(currentLine);
+                  }
+                }
               }
             }
 
-            if (WordNumber + 1 < CurrentLine.length && !FoundSomething) {
-              if (CurrentLine[WordNumber + 1][1] === "NN") {
-                object_x = CurrentLine[WordNumber + 1][0];
+            //loop to get verb and object definition
+            for (var wordNumber = 0; wordNumber < currentLine.length; wordNumber++) {
 
-                CurrentLine[WordNumber][2] = true;
-                CurrentLine[WordNumber + 1][2] = true;
-                FoundSomething = true;
+              if (currentLine[wordNumber][1] === "VB" && wordNumber + 1 < currentLine.length) {
+                operation = currentLine[wordNumber][0];
+                break;
               }
             }
 
-          }
-        }
-
-        //loop to get object name if any
-        for (var WordNumber = 0; WordNumber < CurrentLine.length; WordNumber++) {
-
-          if (WordNumber + 1 < CurrentLine.length && !FoundSomething) {
-            if (CurrentLine[WordNumber][1] === "IN" && CurrentLine[WordNumber][0].toLowerCase() === "as") {
-
+            if (operation.toLowerCase().isInList("add", "create", "insert")) {
+              console.log("RUNNING: " + operation + " " + object_x + " " + color_x);
+              CurrentSelectedItem = CreateObject(object_x, object_name, color_x, "4");
             }
           }
-        }
-
-
-        if (operation.toLowerCase().isInList("add", "create", "insert")) {
-          console.log("RUNNING: " + operation + " " + object_x + " " + color_x);
-          CreateObject(object_x, "", color_x, "4");
         }
       }
 
-      //
-      // 0: [["create", "VB"], ["a", "DT"], ["ball", "NN"], [".", "."]]
-      // 1: [["create", "VB"], ["ball", "NN"], [".", "."]]
-      // 2: [["create", "VB"], ["x1", "NN"], ["as", "IN"], ["ball", "NN"], [".", "."]]
-      // 3: [["create", "VB"], ["x2", "NN"], ["as", "IN"], ["a", "DT"], ["ball", "NN"], [".", "."]]
-      // 4: [["create", "VB"], ["a", "DT"], ["ball", "NN"], ["as", "IN"], ["x5", "NN"], [".", "."]]
-      // 5: [["create", "VB"], ["ball", "NN"], ["as", "IN"], ["x6", "NN"], [".", "."]]
-
-      // 6: [["create", "VB"], ["a", "DT"], ["white", "JJ"], ["ball", "NN"], [".", "."]]
-      // 7: [["create", "VB"], ["white", "JJ"], ["ball", "NN"], [".", "."]]
-      // 8: [["create", "VB"], ["x1", "NN"], ["as", "IN"], ["white", "JJ"], ["ball", "NN"], [".", "."]]
-      // 9: [["create", "VB"], ["x2", "NN"], ["as", "IN"], ["a", "DT"], ["white", "JJ"], ["ball", "NN"],…]
-      // 10: [["create", "VB"], ["a", "DT"], ["white", "JJ"], ["ball", "NN"], ["as", "IN"], ["x5", "NN"],…]
-      // 11: [["create", "VB"], ["white", "JJ"], ["ball", "NN"], ["as", "IN"], ["x6", "NN"], [".", "."]]
-
-      // 12: [["create", "VB"], ["two", "CD"], ["balls", "NNS"], [".", "."]]
-      // 13: [["create", "VB"], ["x1", "NN"], ["and", "CC"], ["x2", "NN"], ["as", "IN"], ["two", "CD"],…]
-      // 14: [["create", "VB"], ["x3", "NN"], ["and", "CC"], ["x4", "NN"], ["as", "IN"], ["balls", "NNS"],…]
-      // 15: [["create", "VB"], ["three", "CD"], ["balls", "NNS"], ["as", "IN"], ["x5", "NN"], [",", ","],…]
-
-      // 16: [["create", "VB"], ["two", "CD"], ["blue", "JJ"], ["balls", "NNS"], [".", "."]]
-      // 17: [["create", "VB"], ["x1", "NN"], ["and", "CC"], ["x2", "NN"], ["as", "IN"], ["two", "CD"],…]
-      // 18: [["create", "VB"], ["x3", "NN"], ["and", "CC"], ["x4", "NN"], ["as", "IN"], ["blue", "JJ"],…]
-      // 19: [["create", "VB"], ["three", "CD"], ["blue", "JJ"], ["balls", "NNS"], ["as", "IN"], ["x5", "NN"],…]
-      // 20: [["create", "VB"], ["a", "DT"], ["cube", "NN"], ["as", "IN"], ["y3", "NN"], [".", "."]]
-
-
-      // 21: [["add", "VB"], ["y2", "NN"], ["as", "IN"], ["a", "DT"], ["cube", "NN"], [".", "."]]
-      // 22: [["add", "VB"], ["a", "DT"], ["ball", "NN"], [".", "."]]
-      // 23: [["create", "VB"], ["a", "DT"], ["ball", "NN"], [".", "."]]
-      // 24: [["color", "NN"], ["x", "NN"], ["as", "IN"], ["blue", "JJ"], [".", "."]]
-      // 25: [["move", "VB"], ["x", "CC"], ["right", "JJ"], ["100", "CD"], [".", "."]]
-      // 26: [["move", "VB"], ["y", "RB"], ["up", "RP"], ["100", "CD"], [".", "."]]
-      // 27: [["move", "NN"], ["y", "RB"], ["left", "VBD"], ["100", "CD"], [".", "."]]
-      // 28: [["move", "NN"], ["x", "NN"], ["up", "IN"], ["50", "CD"], [".", "."]]
-      // 29: [["color", "NN"], ["y", "NN"], ["as", "IN"], ["green", "JJ"], [".", "."]]
 
     });
 

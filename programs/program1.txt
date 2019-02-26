@@ -1,37 +1,42 @@
 //ways to create
 //
+create X1-left as ball
+create X2-left as green ball
+create X3-left as a ball
+create X4-left as a red ball
+//
+create ball as X1-right
+create yellow ball as X2-right
+create a ball as X3-right
+create a brown ball as X4-right
+//
 create a red ball
 create ball
-create x1 as ball
-create x2 as a ball
-create a ball as x5
-create ball as x6
-//
-create a white ball
 create white ball
-create x1 as white ball
-create x2 as a white ball
-create a white ball as x5
-create white ball as x6
+call it whiteBall
 //
+add a blue triangle
+name it triX
+//
+//
+create a big blue circle
+//
+//create multiples
 create two balls
-create x1 and x2 as two balls
-create x3 and x4 as balls
-create three balls as x5,x6 and x7
+create X1 and X2 as two balls
+create X3 and X4 as balls
+create three balls as X5,X6 and X7
 //
 create two blue balls
-create x1 and x2 as two blue balls
-create x3 and x4 as blue balls
-create three blue balls as x5,x6 and x7
+create X1 and X2 as two blue balls
+create X3 and X4 as blue balls
+create three blue balls as X5,X6 and X7
 //
 // test move
-create a cube as y3
-add y2 as a cube
-add a ball
-create a ball
-color x as blue
-move x right 100
-move y up 100
-move y left 100
-move x up 50
-color y as green
+select X1-left
+color it as blue
+move it right 100
+move it up 100
+move it left 100
+move it up 50
+color it as green
