@@ -218,20 +218,30 @@ $(document).ready(function () {
         var currentLine = ParsedSource[LineNumber];
 
         console.log("--------------------------");
-        console.log("sentence:");
+        console.log("sentence len: "+currentLine.length);
         for (var wordNumber = 0; wordNumber < currentLine.length; wordNumber++) {
-          console.log(wordNumber + " " + currentLine[wordNumber][0] + " " + currentLine[wordNumber][1] + " " + currentLine.length);
+          console.log(wordNumber + " " + currentLine[wordNumber][0] + " " + currentLine[wordNumber][1]);
           currentLine[wordNumber][2] = false;
         }
 
         //for naming item(s)
-        if (currentLine[wordNumber][0].toLowerCase() === "call" || currentLine[wordNumber][0].toLowerCase() === "name") {
+        if (currentLine[0][0].toLowerCase() === "call" || currentLine[0][0].toLowerCase() === "name") {
+          if (currentLine[1][0].toLowerCase() === "it") {
 
+            var new_object_name = currentLine[2][0].toLowerCase();
+            console.log("rename: "+ CurrentSelectedItem +" to "+ new_object_name);
+            $("#DrawArea").children().each(function () {
+              if ($(this).attr("id")===CurrentSelectedItem) {
+                $(this).attr("id",new_object_name);
+                break;
+              }
+            });
+          }
         }
         else
 
         //for making a selection
-        if (currentLine[wordNumber][0].toLowerCase() === "select") {
+        if (currentLine[0][0].toLowerCase() === "select") {
 
         }
         else {
