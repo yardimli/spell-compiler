@@ -175,8 +175,8 @@ function CreateObject(obj_type, obj_name, obj_color, rule_id) {
         position: "absolute",
         top: LastYPos + "px",
         left: LastXPos + "px",
-        borderBottom: "solid 50px "+obj_color,
-        borderRight: "solid 50px "+obj_color,
+        borderBottom: "solid 50px " + obj_color,
+        borderRight: "solid 50px " + obj_color,
         borderLeft: "solid 50px transparent",
         borderTop: "solid 50px transparent"
       }
@@ -189,12 +189,11 @@ function CreateObject(obj_type, obj_name, obj_color, rule_id) {
     }
 
     return obj_name;
-  } else
-  {
+  }
+  else {
     var object_create_error = "no object selected";
     return object_create_error;
   }
-
 
 
 }
@@ -211,14 +210,14 @@ $(document).ready(function () {
       LastXPos = 100;
       LastYPos = 100;
 
-      var reservedNouns = ["ball", "cube","triangle"];
-      var reservedSturcture = ["DT JJ NN", "JJ NN", "DT NN","NN"];
+      var reservedNouns = ["ball", "cube", "triangle"];
+      var reservedSturcture = ["DT JJ JJ NN", "DT JJ NN", "JJ NN", "DT NN", "NN"];
 
       for (var LineNumber = 0; LineNumber < ParsedSource.length; LineNumber++) {
         var currentLine = ParsedSource[LineNumber];
 
         console.log("--------------------------");
-        console.log("sentence len: "+currentLine.length);
+        console.log("sentence len: " + currentLine.length);
         for (var wordNumber = 0; wordNumber < currentLine.length; wordNumber++) {
           console.log(wordNumber + " " + currentLine[wordNumber][0] + " " + currentLine[wordNumber][1]);
           currentLine[wordNumber][2] = false;
@@ -228,14 +227,17 @@ $(document).ready(function () {
         if (currentLine[0][0].toLowerCase() === "call" || currentLine[0][0].toLowerCase() === "name") {
           if (currentLine[1][0].toLowerCase() === "it") {
 
-            var new_object_name = currentLine[2][0].toLowerCase();
-            console.log("rename: "+ CurrentSelectedItem +" to "+ new_object_name);
+            var new_object_name = currentLine[2][0];
+            console.log("rename: " + CurrentSelectedItem + " to " + new_object_name);
             $("#DrawArea").children().each(function () {
-              if ($(this).attr("id")===CurrentSelectedItem) {
-                $(this).attr("id",new_object_name);
-                break;
+              if ($(this).attr("id") === CurrentSelectedItem) {
+                $(this).attr("id", new_object_name);
+                return false;
               }
             });
+          }
+          else if (currentLine[1][0].toLowerCase() === "them") {
+
           }
         }
         else
@@ -244,7 +246,7 @@ $(document).ready(function () {
         if (currentLine[0][0].toLowerCase() === "select") {
 
         }
-        else {
+        else if (currentLine[0][0].toLowerCase() === "create" || currentLine[0][0].toLowerCase() === "add") {
           //for adding items
           var operation = "";
           var object_x = "";
@@ -342,12 +344,12 @@ $(document).ready(function () {
 
                 if (reservedNounPosition !== "") {
                   if (reservedNounPosition === "left") {
-                    object_name = currentLine[wordNumber + 1][0].toLowerCase();
+                    object_name = currentLine[wordNumber + 1][0];//.toLowerCase();
                     currentLine.splice(wordNumber, 2);
                     console.log(currentLine);
                   }
                   else if (reservedNounPosition === "right") {
-                    object_name = currentLine[wordNumber - 1][0].toLowerCase();
+                    object_name = currentLine[wordNumber - 1][0];//.toLowerCase();
                     currentLine.splice(wordNumber - 1, 2);
                     console.log(currentLine);
                   }
