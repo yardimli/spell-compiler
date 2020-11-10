@@ -1,0 +1,534 @@
+{
+  "rules": [
+    [
+      {
+        "word": "create",
+        "op": "VB",
+        "command": "create"
+      },
+      {
+        "word": "a",
+        "op": "DT",
+        "command": "quantity",
+        "value": 1,
+        "group" : "object_description"
+      },
+      {
+        "word": "big",
+        "op": "JJ",
+        "command": "quality",
+        "value": "big",
+        "group" : "object_description"
+      },
+      {
+        "word": "blue",
+        "op": "JJ",
+        "command": "color",
+        "value": "blue",
+        "group" : "object_description"
+      },
+      {
+        "word": "circle",
+        "op": "NN",
+        "command": "shape",
+        "value": "circle",
+        "group" : "object_description"
+      },
+      {
+        "word": ".",
+        "op": ".",
+        "command": "end"
+      }
+    ],
+    [
+      {
+        "word": "create",
+        "op": "VB",
+        "command": "create"
+      },
+      {
+        "word": "two",
+        "op": "CD",
+        "command": "quantity",
+        "value": 2,
+        "group" : "object_description"
+      },
+      {
+        "word": "balls",
+        "op": "NNS",
+        "command": "shape",
+        "value": "circle",
+        "group" : "object_description"
+      },
+      {
+        "word": ".",
+        "op": ".",
+        "command": "end"
+      }
+    ],
+    [
+      {
+        "word": "create",
+        "op": "VB",
+        "command": "create"
+      },
+      {
+        "word": "X1",
+        "op": "NN",
+        "command": "var_name",
+        "group": "var_names"
+      },
+      {
+        "word": "and",
+        "op": "CC",
+        "group": "var_names"
+      },
+      {
+        "word": "X2",
+        "op": "NN",
+        "command": "var_name",
+        "group": "var_names"
+      },
+      {
+        "word": "as",
+        "op": "IN",
+        "group": "var_names"
+      },
+      {
+        "word": "two",
+        "op": "CD",
+        "group" : "object_description"
+      },
+      {
+        "word": "balls",
+        "op": "NNS",
+        "group" : "object_description"
+      },
+      {
+        "word": ".",
+        "op": ".",
+        "command": "end"
+      }
+    ],
+    [
+      {
+        "word": "create",
+        "op": "VB",
+        "command": "create"
+      },
+      {
+        "word": "X3",
+        "op": "NN",
+        "group": "var_names"
+      },
+      {
+        "word": "and",
+        "op": "CC",
+        "group": "var_names"
+      },
+      {
+        "word": "X4",
+        "op": "NN",
+        "group": "var_names"
+      },
+      {
+        "word": "as",
+        "op": "IN",
+        "group": "var_names"
+      },
+      {
+        "word": "balls",
+        "op": "NNS"
+      },
+      {
+        "word": ".",
+        "op": ".",
+        "command": "end"
+      }
+    ],
+    [
+      {
+        "word": "create",
+        "op": "VB",
+        "command": "create"
+      },
+      {
+        "word": "three",
+        "op": "CD",
+        "group" : "object_description"
+      },
+      {
+        "word": "balls",
+        "op": "NNS",
+        "group" : "object_description"
+      },
+      {
+        "word": "as",
+        "op": "IN",
+        "group": "var_names"
+      },
+      {
+        "word": "X5",
+        "op": "NN",
+        "group": "var_names"
+      },
+      {
+        "word": ",",
+        "op": ",",
+        "group": "var_names"
+      },
+      {
+        "word": "X6",
+        "op": "NN",
+        "group": "var_names"
+      },
+      {
+        "word": "and",
+        "op": "CC",
+        "group": "var_names"
+      },
+      {
+        "word": "X7",
+        "op": "NN",
+        "group": "var_names"
+      },
+      {
+        "word": ".",
+        "op": ".",
+        "command": "end"
+      }
+    ],
+    [
+      {
+        "word": "create",
+        "op": "VB",
+        "command": "create"
+      },
+      {
+        "word": "two",
+        "op": "CD",
+        "group" : "object_description"
+      },
+      {
+        "word": "blue",
+        "op": "JJ",
+        "group" : "object_description"
+      },
+      {
+        "word": "balls",
+        "op": "NNS",
+        "group" : "object_description"
+      },
+      {
+        "word": "word",
+        "op": ".",
+        "command": "end"
+      }
+    ],
+    [
+      {
+        "word": "create",
+        "op": "VB",
+        "command": "create"
+      },
+      {
+        "word": "X1",
+        "op": "NN",
+        "group": "var_names"
+      },
+      {
+        "word": "and",
+        "op": "CC",
+        "group": "var_names"
+      },
+      {
+        "word": "X2",
+        "op": "NN",
+        "group": "var_names"
+      },
+      {
+        "word": "as",
+        "op": "IN",
+        "group": "var_names"
+      },
+      {
+        "word": "two",
+        "op": "CD",
+        "group" : "object_description"
+      },
+      {
+        "word": "blue",
+        "op": "JJ",
+        "group" : "object_description"
+      },
+      {
+        "word": "balls",
+        "op": "NNS",
+        "group" : "object_description"
+      },
+      {
+        "word": "word",
+        "op": ".",
+        "command": "end"
+      }
+    ],
+    [
+      {
+        "word": "create",
+        "op": "VB",
+        "command": "create"
+      },
+      {
+        "word": "X3",
+        "op": "NN",
+        "group": "var_names"
+      },
+      {
+        "word": "and",
+        "op": "CC",
+        "group": "var_names"
+      },
+      {
+        "word": "X4",
+        "op": "NN",
+        "group": "var_names"
+      },
+      {
+        "word": "as",
+        "op": "IN",
+        "group": "var_names"
+      },
+      {
+        "word": "blue",
+        "op": "JJ",
+        "group" : "object_description"
+      },
+      {
+        "word": "balls",
+        "op": "NNS",
+        "group" : "object_description"
+      },
+      {
+        "word": ".",
+        "op": ".",
+        "command": "end"
+      }
+    ],
+    [
+      {
+        "word": "create",
+        "op": "VB",
+        "command": "create"
+      },
+      {
+        "word": "three",
+        "op": "CD",
+        "group" : "object_description"
+      },
+      {
+        "word": "blue",
+        "op": "JJ",
+        "group" : "object_description"
+      },
+      {
+        "word": "balls",
+        "op": "NNS",
+        "group" : "object_description"
+      },
+      {
+        "word": "as",
+        "op": "IN",
+        "group": "var_names"
+      },
+      {
+        "word": "X5",
+        "op": "NN",
+        "group": "var_names"
+      },
+      {
+        "word": ",",
+        "op": ",",
+        "group": "var_names"
+      },
+      {
+        "word": "X6",
+        "op": "NN",
+        "group": "var_names"
+      },
+      {
+        "word": "and",
+        "op": "CC",
+        "group": "var_names"
+      },
+      {
+        "word": "X7",
+        "op": "NN",
+        "group": "var_names"
+      },
+      {
+        "word": ".",
+        "op": ".",
+        "command": "end"
+      }
+    ],
+    [
+      {
+        "word": "select",
+        "op": "JJ",
+        "command": "select"
+      },
+      {
+        "word": "X1-left",
+        "op": "NN"
+      },
+      {
+        "word": ".",
+        "op": ".",
+        "command": "end"
+      }
+    ],
+    [
+      {
+        "word": "color",
+        "op": "NN"
+      },
+      {
+        "word": "it",
+        "op": "PRP"
+      },
+      {
+        "word": "as",
+        "op": "IN"
+      },
+      {
+        "word": "blue",
+        "op": "JJ"
+      },
+      {
+        "word": ".",
+        "op": ".",
+        "command": "end"
+      }
+    ],
+    [
+      {
+        "word": "move",
+        "op": "VB",
+        "command": "move"
+      },
+      {
+        "word": "it",
+        "op": "PRP"
+      },
+      {
+        "word": "right",
+        "op": "JJ"
+      },
+      {
+        "word": "100",
+        "op": "CD"
+      },
+      {
+        "word": ".",
+        "op": ".",
+        "command": "end"
+      }
+    ],
+    [
+      {
+        "word": "move",
+        "op": "VB",
+        "command": "move"
+      },
+      {
+        "word": "it",
+        "op": "PRP"
+      },
+      {
+        "word": "up",
+        "op": "RP"
+      },
+      {
+        "word": "100",
+        "op": "CD"
+      },
+      {
+        "word": ".",
+        "op": ".",
+        "command": "end"
+      }
+    ],
+    [
+      {
+        "word": "move",
+        "op": "VB",
+        "command": "move"
+      },
+      {
+        "word": "it",
+        "op": "PRP"
+      },
+      {
+        "word": "left",
+        "op": "VBD"
+      },
+      {
+        "word": "100",
+        "op": "CD"
+      },
+      {
+        "word": ".",
+        "op": ".",
+        "command": "end"
+      }
+    ],
+    [
+      {
+        "word": "move",
+        "op": "VB",
+        "command": "move"
+      },
+      {
+        "word": "it",
+        "op": "PRP"
+      },
+      {
+        "word": "up",
+        "op": "IN"
+      },
+      {
+        "word": "50",
+        "op": "CD"
+      },
+      {
+        "word": ".",
+        "op": ".",
+        "command": "end"
+      }
+    ],
+    [
+      {
+        "word": "color",
+        "op": "NN",
+        "command": "color"
+      },
+      {
+        "word": "it",
+        "op": "PRP"
+      },
+      {
+        "word": "as",
+        "op": "IN"
+      },
+      {
+        "word": "green",
+        "op": "JJ"
+      },
+      {
+        "word": ".",
+        "op": ".",
+        "command": "end"
+      }
+    ]
+  ]
+}
