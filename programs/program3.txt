@@ -1,21 +1,22 @@
-create a big blue circle
+create a big blue circle.
 //
-//create multiples
-create two balls
-create X1 and X2 as two balls
-create X3 and X4 as balls
-create three balls as X5,X6 and X7
+//create multiples.
+create two balls.
+create X1 and X2 as two balls.
+create X3 and X4 as balls.
+create three balls as X5,X6 and X7.
 //
-create two blue balls
-create X1 and X2 as two blue balls
-create X3 and X4 as blue balls
-create three blue balls as X5,X6 and X7
+create two blue balls.
+create X1 and X2 as two blue balls.
+create X3 and X4 as blue balls.
+create three blue balls as X5,X6 and X7.
 //
 // test move
-select X1-left
-color it as blue
-move it right 100
-move it up 100
-move it left 100
-move it up 50
-color it as green
+select X1-left.
+color it as blue.
+move it right 100.
+move it up 100.
+move it left 100.
+move it up 50.
+color it as green.
+color it as red.

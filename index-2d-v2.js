@@ -9,9 +9,27 @@ var ParsedSource;
 
 
 var structures;
+var short_structures = [];
 
-$.getJSON("structures.json", function(json) {
+$.getJSON("structures.json", function (json) {
   structures = json;
+  console.log(structures);
+  console.log(structures["rules"].length);
+
+  for (var LineNumber = 0; LineNumber < structures["rules"].length; LineNumber++) {
+
+    var StructureString = "";
+    for (var WordNumber = 0; WordNumber < structures["rules"][LineNumber].length; WordNumber++) {
+      StructureString += structures["rules"][LineNumber][WordNumber]["op"];
+      if (WordNumber < structures["rules"][LineNumber].length - 1) {
+        StructureString += "-";
+      }
+    }
+    short_structures.push( StructureString);
+    //console.log(StructureString);
+  }
+  console.log(short_structures);
+
 });
 
 if (!String.prototype.isInList) {
@@ -214,28 +232,49 @@ $(document).ready(function () {
   $('#compilebtn').on('click', function () {
 
     ParseSource($("#spellscript").val(), function () {
-      $("#DrawArea").html("");
-      LastXPos = 100;
-      LastYPos = 100;
+        $("#DrawArea").html("");
+        LastXPos = 100;
+        LastYPos = 100;
 
-      console.log(structures);
+        console.log(structures);
 
-      for (var LineNumber = 0; LineNumber < ParsedSource.length; LineNumber++) {
-        var currentLine = ParsedSource[LineNumber];
+        for (var LineNumber = 0; LineNumber < ParsedSource.length; LineNumber++) {
+          var currentLine = ParsedSource[LineNumber];
 
-        console.log("--------------------------");
-        console.log("sentence len: " + currentLine.length);
-        for (var wordNumber = 0; wordNumber < currentLine.length; wordNumber++) {
-          console.log(wordNumber + " " + currentLine[wordNumber][0] + " " + currentLine[wordNumber][1]);
-          currentLine[wordNumber][2] = false;
+          var ThisStructureString = "";
+          for (var wordNumber = 0; wordNumber < currentLine.length; wordNumber++) {
+
+            ThisStructureString += currentLine[wordNumber][1];
+            if (wordNumber < currentLine.length - 1) {
+              ThisStructureString += "-";
+            }
+          }
+          console.log(ThisStructureString);
+
+          for (var ii=0; ii<short_structures.length; ii++) {
+            if (ThisStructureString===short_structures[ii]) {
+              console.log(structures["rules"][ii]);
+              break;
+            }
+          }
+
+
+          console.log("--------------------------");
+          console.log("sentence len: " + currentLine.length);
+          for (var wordNumber = 0; wordNumber < currentLine.length; wordNumber++) {
+            console.log(wordNumber + " " + currentLine[wordNumber][0] + " " + currentLine[wordNumber][1]);
+            currentLine[wordNumber][2] = false;
+          }
+
+
         }
       }
-    });
+    );
   });
 
 
-  LoadProgramFile("program1.txt");
-  $("#spellname").val("program1.txt");
+  LoadProgramFile("program3.txt");
+  $("#spellname").val("program3.txt");
 //---------------------------------------------------------------------------------------------------------------------------
   var UrlToGet = "load_programs.php";
 

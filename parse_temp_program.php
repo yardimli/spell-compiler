@@ -22,7 +22,7 @@ $lines = preg_split( "/(\r\n|\n|\r)/", $program_source );
 $source_lines = [];
 foreach ( $lines as $line ) {
   if (stripos($line,"//")===false) {
-    array_push( $source_lines, explode( ' ', $line . "." ) );
+    array_push( $source_lines, explode( ' ', $line  ) );
   } else {
   }
 }
