@@ -1,0 +1,48 @@
+<!DOCTYPE HTML>
+<html lang="en">
+<head>
+	<!-- when using the mode "code", it's important to specify charset utf-8 -->
+	<meta charset="utf-8">
+
+	<link href="jsoneditor/dist/jsoneditor.min.css" rel="stylesheet" type="text/css">
+	<script src="jsoneditor/dist/jsoneditor.min.js"></script>
+
+	<!-- jQuery -->
+	<script src="js/jquery-1.11.3.min.js"></script>
+	<!-- Bootstrap JS -->
+	<script src="js/bootstrap.min.js"></script>
+
+</head>
+<body>
+<div id="jsoneditor" style="width: 400px; height: 100vh;"></div>
+
+<script>
+  // create the editor
+  const container = document.getElementById("jsoneditor");
+  const options = {};
+  const editor = new JSONEditor(container, options);
+  var structures;
+  var updatedJson;
+
+  $.getJSON("structures.json", function (json) {
+    structures = json;
+    editor.set(structures);
+    updatedJson = editor.get();
+  });
+
+
+  //   // set json
+  // const initialJson = {
+  //   "Array": [1, 2, 3],
+  //   "Boolean": true,
+  //   "Null": null,
+  //   "Number": 123,
+  //   "Object": {"a": "b", "c": "d"},
+  //   "String": "Hello World"
+  // }
+  // editor.set(initialJson)
+
+  // get json
+</script>
+</body>
+</html>
