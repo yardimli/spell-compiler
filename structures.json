@@ -92,17 +92,21 @@
       {
         "word": "as",
         "op": "IN",
-        "command": "+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++target",
+        "command": "var_target",
         "group": "var_names"
       },
       {
         "word": "two",
         "op": "CD",
+        "command": "quantity",
+        "value": 2,
         "group" : "object_description"
       },
       {
         "word": "balls",
         "op": "NNS",
+        "command": "shape",
+        "value": "ball",
         "group" : "object_description"
       },
       {
