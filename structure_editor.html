@@ -17,14 +17,30 @@
 
 	<link href='https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.0.3/css/font-awesome.css' rel="stylesheet">
 
-	<link href="//cdnjs.cloudflare.com/ajax/libs/x-editable/1.5.0/bootstrap3-editable/css/bootstrap-editable.css" rel="stylesheet" />
-	<script src="//cdnjs.cloudflare.com/ajax/libs/x-editable/1.5.0/bootstrap3-editable/js/bootstrap-editable.min.js"></script>
-
 	<link href='css/structure_editor.css' rel="stylesheet">
 	<script src='js/structure_editor.js'></script>
 
+	<link href='css/dropdown-tree.css' rel="stylesheet">
+	<script src='js/dropdown-tree.js'></script>
+
 </head>
 <body class="mt-1 ms-1">
+
+<div class="input-group-x" id="dropdown_edit">
+	<input type="text" placeholder="Select Categories" readonly="readonly" id="structure_categories"/>
+	<div class="dropdown-tree js-dropdown-tree">
+		<div class="dropdown-tree__content custom-scroll"></div>
+		<div class="dropdown-tree__action">
+			<div class="content-hidden-line"></div>
+			<div class="btn-x btn--cancel">Cancel</div>
+			<div class="btn-x btn--apply">Apply</div>
+		</div>
+	</div>
+</div>
+
+<div class="" id="select_categories_lesson"></div>
+
+
 <div>
 	<div id="test_area" style="width: 400px; height: 99vh; display: inline-block;">
 

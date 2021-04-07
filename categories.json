@@ -1,0 +1,145 @@
+[
+  {
+    "id": "Category",
+    "name": "Category",
+    "parentID": "0",
+    "parent": "",
+    "fullpath": "Category"
+  },
+  {
+    "id": "create",
+    "name": "create",
+    "parentID": "Category",
+    "parent": "Category",
+    "fullpath": "create"
+  },
+  {
+    "id": "create_default",
+    "name": "default",
+    "parentID": "create",
+    "parent": "create",
+    "fullpath": "create - default"
+  },
+  {
+    "id": "quantity",
+    "name": "quantity",
+    "parentID": "Category",
+    "parent": "Category",
+    "fullpath": "quantity"
+  },
+
+  {
+    "id": "1",
+    "name": "1",
+    "parentID": "quantity",
+    "parent": "quantity",
+    "fullpath": "quantity - 1"
+  },
+  {
+    "id": "2",
+    "name": "2",
+    "parentID": "quantity",
+    "parent": "quantity",
+    "fullpath": "quantity - 2"
+  },
+
+  {
+    "id": "quality",
+    "name": "quality",
+    "parentID": "Category",
+    "parent": "Category",
+    "fullpath": "quality"
+  },
+  {
+    "id": "big",
+    "name": "big",
+    "parentID": "quality",
+    "parent": "quality",
+    "fullpath": "quality - big"
+  },
+  {
+    "id": "color",
+    "name": "color",
+    "parentID": "Category",
+    "parent": "Category",
+    "fullpath": "color"
+  },
+  {
+    "id": "color_name",
+    "name": "name",
+    "parentID": "color",
+    "parent": "color",
+    "fullpath": "color - name"
+  },
+  {
+    "id": "red",
+    "name": "red",
+    "parentID": "color",
+    "parent": "color",
+    "fullpath": "color - red"
+  },
+  {
+    "id": "shape",
+    "name": "shape",
+    "parentID": "Category",
+    "parent": "Category",
+    "fullpath": "shape"
+  },
+  {
+    "id": "shape_default",
+    "name": "default",
+    "parentID": "shape",
+    "parent": "shape",
+    "fullpath": "shape - default"
+  },
+  {
+    "id": "var_name",
+    "name": "var_name",
+    "parentID": "Category",
+    "parent": "Category",
+    "fullpath": "var_name"
+  },
+  {
+    "id": "var_name_default",
+    "name": "default",
+    "parentID": "var_name",
+    "parent": "var_name",
+    "fullpath": "var_name - default"
+  },
+  {
+    "id": "var_target",
+    "name": "var_target",
+    "parentID": "Category",
+    "parent": "Category",
+    "fullpath": "var_target"
+  },
+  {
+    "id": "var_target_default",
+    "name": "default",
+    "parentID": "var_target",
+    "parent": "var_target",
+    "fullpath": "var_target - default"
+  },
+  {
+    "id": "Group",
+    "name": "Group",
+    "parentID": "0",
+    "parent": "",
+    "fullpath": "Group"
+  },
+  {
+    "id": "group-description",
+    "name": "Description",
+    "parentID": "Group",
+    "parent": "Group",
+    "fullpath": "Group - Description"
+  },
+  {
+    "id": "group-var_names",
+    "name": "Var Names",
+    "parentID": "Group",
+    "parent": "Group",
+    "fullpath": "Group - Var Names"
+  }
+
+]

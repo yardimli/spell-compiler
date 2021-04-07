@@ -33,6 +33,8 @@ $(document).ready(function () {
 
   });
 
+  var value_array_string = "{value: 'big', text: 'big' }, { value: 'circle', text: 'circle' }, { value: '1', text: '1' }";
+
   $.getJSON("structures.json", function (json) {
     structures = json;
     // editor.set(structures);
@@ -46,30 +48,15 @@ $(document).ready(function () {
 
       for (var j = 0; j < structures["rules"][i].length; j++) {
         console.log(structures["rules"][i][j]);
-        structure_div += "<div style='display: inline-block; vertical-align: top; margin-right:10px; border: 1px solid #ccc; padding:5px;'>";
-        structure_div += "<div style='background-color: #ccc;'>" + structures["rules"][i][j].word + "</div>";
-        structure_div += structures["rules"][i][j].op + "<br>";
+        structure_div += "<div class='structure_container'>";
+        structure_div += "<div class='structure_container_word'>" + structures["rules"][i][j].word + "</div>";
+        structure_div += "<div class='structure_container_pos'>" + structures["rules"][i][j].op + "</div>";
 
+        var structure_command = structures["rules"][i][j].command;
         if (typeof structures["rules"][i][j].command === "undefined" || structures["rules"][i][j].command === "") {
-          structure_div += "<span class='command_input'>---</span><br>";
+          structure_command = "---";
         }
-        else {
-          structure_div += "c:<span class='command_input'>" + structures["rules"][i][j].command + "</span><br>";
-        }
-
-        if (typeof structures["rules"][i][j].value === "undefined" || structures["rules"][i][j].value === "") {
-          structure_div += "---<br>";
-        }
-        else {
-          structure_div += "v:" + structures["rules"][i][j].value + "<br>";
-        }
-
-        if (typeof structures["rules"][i][j].group === "undefined" || structures["rules"][i][j].group === "") {
-          structure_div += "---<br>";
-        }
-        else {
-          structure_div += "g:" + structures["rules"][i][j].group + "<br>";
-        }
+        structure_div += "<span class='structure_container_command' data-value='" + structure_command + "'>" +  structure_command.replaceAll(",","<br>") + "</span><br>";
 
         structure_div += "</div>";
       }
@@ -77,50 +64,32 @@ $(document).ready(function () {
       $("#json_list").append(structure_div);
     }
 
-    $('.command_input').editable({
-      type: 'select',
-      pk: 1,
-      name: 'command',
-      title: 'Enter command',
-      source: [{
-        value: 'create',
-        text: 'create'
-      },
-        {
-          value: 'quantity',
-          text: 'quantity'
-        },
-        {
-          value: 'quality',
-          text: 'quality'
-        },
-        {
-          value: 'color',
-          text: 'color'
-        },
-        {
-          value: 'shape',
-          text: 'shape'
-        },
-        {
-          value: 'end',
-          text: 'end'
-        },
-        {
-          value: 'var_name',
-          text: 'variable name'
-        },
-        {
-          value: 'var_target',
-          text: 'variable target'
-        }
-      ]
+    $(".structure_container_command").on('click',function () {
+      $('.dropdown-tree__item').removeClass("checked");
 
-      // validate: function (value) {
-      //   if ($.trim(value) === '') return 'This field is required';
-      // }
+      var temp_categories = $(this).data("value");
+      temp_categories = temp_categories.split(",");
+      $('.dropdown-tree__item').each(
+        function (index,item) {
+          for (var i=0; i<temp_categories.length; i++) {
+            if ($(item).data("catid")===temp_categories[i].trim()) {
+              console.log($(item).data("catid"));
+              $(item).addClass("checked");
+            }
+          }
+        });
+
+      $("#dropdown_edit").css({
+        "top" : ($(this).position().top-13) + "px",
+        "left" : ($(this).position().left-5) + "px",
+      });
+      $("#structure_categories").val( $(this).data("value") );
+      $("#dropdown_edit").fadeIn(300);
+      $("#dropdown_edit").fadeIn(300);
+      $('.js-dropdown-tree').fadeIn(300,function () {
+        tree_is_visible = true;
+      });
     });
-
 
   });
 
@@ -151,165 +120,5 @@ $(document).ready(function () {
     });
   }
 
-
-//   // set json
-// const initialJson = {
-//   "Array": [1, 2, 3],
-//   "Boolean": true,
-//   "Null": null,
-//   "Number": 123,
-//   "Object": {"a": "b", "c": "d"},
-//   "String": "Hello World"
-// }
-// editor.set(initialJson)
-
-// get json
-
-
-  $.fn.editable.defaults.mode = 'inline';
-  $.fn.editableform.buttons =
-    '<button type="submit" class="btn btn-primary btn-sm editable-submit">' +
-    '<i class="fa fa-fw fa-check"></i>' +
-    '</button>' +
-    '<button type="button" class="btn btn-warning btn-sm editable-cancel">' +
-    '<i class="fa fa-fw fa-times"></i>' +
-    '</button>';
-
-
-  $('#sex').editable({
-    source: [{
-      value: 1,
-      text: 'Male'
-    },
-      {
-        value: 2,
-        text: 'Female'
-      }
-    ]
-  });
-
-  $('#status').editable();
-
-  $('#group').editable({
-    showbuttons: false
-  });
-
-  $('#vacation').editable({
-    datepicker: {
-      todayBtn: 'linked'
-    }
-  });
-
-  $('#dob').editable();
-
-  $('#event').editable({
-    placement: 'right',
-    combodate: {
-      firstItem: 'name'
-    }
-  });
-
-  $('#meeting_start').editable({
-    format: 'yyyy-mm-dd hh:ii',
-    viewformat: 'dd/mm/yyyy hh:ii',
-    validate: function (v) {
-      if (v && v.getDate() === 10) return 'Day cant be 10!';
-    },
-    datetimepicker: {
-      todayBtn: 'linked',
-      weekStart: 1
-    }
-  });
-
-  $('#comments').editable({
-    showbuttons: 'bottom'
-  });
-
-  $('#note').editable();
-  $('#pencil').on("click", function (e) {
-    e.stopPropagation();
-    e.preventDefault();
-    $('#note').editable('toggle');
-  });
-
-  $('#state').editable({
-    source: ["Alabama", "Alaska", "Arizona", "Arkansas", "California", "Colorado", "Connecticut", "Delaware", "Florida", "Georgia", "Hawaii", "Idaho", "Illinois", "Indiana", "Iowa", "Kansas", "Kentucky", "Louisiana", "Maine", "Maryland", "Massachusetts", "Michigan", "Minnesota", "Mississippi", "Missouri", "Montana", "Nebraska", "Nevada", "New Hampshire", "New Jersey", "New Mexico", "New York", "North Dakota", "North Carolina", "Ohio", "Oklahoma", "Oregon", "Pennsylvania", "Rhode Island", "South Carolina", "South Dakota", "Tennessee", "Texas", "Utah", "Vermont", "Virginia", "Washington", "West Virginia", "Wisconsin", "Wyoming"]
-  });
-
-  $('#state2').editable({
-    value: 'California',
-    typeahead: {
-      name: 'state',
-      local: ["Alabama", "Alaska", "Arizona", "Arkansas", "California", "Colorado", "Connecticut", "Delaware", "Florida", "Georgia", "Hawaii", "Idaho", "Illinois", "Indiana", "Iowa", "Kansas", "Kentucky", "Louisiana", "Maine", "Maryland", "Massachusetts", "Michigan", "Minnesota", "Mississippi", "Missouri", "Montana", "Nebraska", "Nevada", "New Hampshire", "New Jersey", "New Mexico", "New York", "North Dakota", "North Carolina", "Ohio", "Oklahoma", "Oregon", "Pennsylvania", "Rhode Island", "South Carolina", "South Dakota", "Tennessee", "Texas", "Utah", "Vermont", "Virginia", "Washington", "West Virginia", "Wisconsin", "Wyoming"]
-    }
-  });
-
-  $('#fruits').editable({
-    pk: 1,
-    limit: 3,
-    source: [{
-      value: 1,
-      text: 'banana'
-    },
-      {
-        value: 2,
-        text: 'peach'
-      },
-      {
-        value: 3,
-        text: 'apple'
-      },
-      {
-        value: 4,
-        text: 'watermelon'
-      },
-      {
-        value: 5,
-        text: 'orange'
-      }
-    ]
-  });
-
-  $('#tags').editable({
-    inputclass: 'input-large',
-    select2: {
-      tags: ['html', 'javascript', 'css', 'ajax'],
-      tokenSeparators: [",", " "]
-    }
-  });
-
-  $('#address').editable({
-    url: '/post',
-    value: {
-      city: "Moscow",
-      street: "Lenina",
-      building: "12"
-    },
-    validate: function (value) {
-      if (value.city === '') return 'city is required!';
-    },
-    display: function (value) {
-      if (!value) {
-        $(this).empty();
-        return;
-      }
-      var html = '<b>' + $('<div>').text(value.city).html() + '</b>, ' + $('<div>').text(value.street).html() + ' st., bld. ' + $('<div>').text(value.building).html();
-      $(this).html(html);
-    }
-  });
-
-  $('#user .editable').on('hidden', function (e, reason) {
-    if (reason === 'save' || reason === 'nochange') {
-      var $next = $(this).closest('tr').next().find('.editable');
-      if ($('#autoopen').is(':checked')) {
-        setTimeout(function () {
-          $next.editable('show');
-        }, 300);
-      }
-      else {
-        $next.focus();
-      }
-    }
-  });
 
 });

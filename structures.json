@@ -9,30 +9,22 @@
       {
         "word": "a",
         "op": "DT",
-        "command": "quantity",
-        "value": 1,
-        "group" : "object_description"
+        "command": "quantity-1, group-description"
       },
       {
         "word": "big",
         "op": "JJ",
-        "command": "quality",
-        "value": "big",
-        "group" : "object_description"
+        "command": "quality-big, group-description"
       },
       {
         "word": "blue",
         "op": "JJ",
-        "command": "color",
-        "value": "blue",
-        "group" : "object_description"
+        "command": "color-blue, group-description"
       },
       {
         "word": "circle",
         "op": "NN",
-        "command": "shape",
-        "value": "circle",
-        "group" : "object_description"
+        "command": "shape-circle, group-description"
       },
       {
         "word": ".",
@@ -49,16 +41,12 @@
       {
         "word": "two",
         "op": "CD",
-        "command": "quantity",
-        "value": 2,
-        "group" : "object_description"
+        "command": "quantity-2, group-description"
       },
       {
         "word": "balls",
         "op": "NNS",
-        "command": "shape",
-        "value": "circle",
-        "group" : "object_description"
+        "command": "shape-circle, group-description"
       },
       {
         "word": ".",
@@ -75,39 +63,32 @@
       {
         "word": "X1",
         "op": "NN",
-        "command": "var_name",
-        "group": "var_names"
+        "command": "var_name, group-var_names"
       },
       {
         "word": "and",
         "op": "CC",
-        "group": "var_names"
+        "command": "group-var_names"
       },
       {
         "word": "X2",
         "op": "NN",
-        "command": "var_name",
-        "group": "var_names"
+        "command": "var_name, group-var_names"
       },
       {
         "word": "as",
         "op": "IN",
-        "command": "var_target",
-        "group": "var_names"
+        "command": "var_target, group-var_names"
       },
       {
         "word": "two",
         "op": "CD",
-        "command": "quantity",
-        "value": 2,
-        "group" : "object_description"
+        "command": "quantity-2, group-description"
       },
       {
         "word": "balls",
         "op": "NNS",
-        "command": "shape",
-        "value": "ball",
-        "group" : "object_description"
+        "command": "shape-ball, group-description"
       },
       {
         "word": ".",
@@ -124,26 +105,22 @@
       {
         "word": "X3",
         "op": "NN",
-        "group": "var_names",
-        "command": ""
+        "command": "group-var_names"
       },
       {
         "word": "and",
         "op": "CC",
-        "group": "var_names",
-        "command": ""
+        "command": "group-var_names"
       },
       {
         "word": "X4",
         "op": "NN",
-        "group": "var_names",
-        "command": ""
+        "command": "group-var_names"
       },
       {
         "word": "as",
         "op": "IN",
-        "group": "var_names",
-        "command": ""
+        "command": "group-var_names"
       },
       {
         "word": "balls",
@@ -165,50 +142,42 @@
       {
         "word": "three",
         "op": "CD",
-        "group" : "object_description",
-        "command": ""
+        "command": "group-description"
       },
       {
         "word": "balls",
         "op": "NNS",
-        "group" : "object_description",
-        "command": ""
+        "command": "group-description"
       },
       {
         "word": "as",
         "op": "IN",
-        "group": "var_names",
-        "command": ""
+        "command": "group-var_names"
       },
       {
         "word": "X5",
         "op": "NN",
-        "group": "var_names",
-        "command": ""
+        "command": "group-var_names"
       },
       {
         "word": ",",
         "op": ",",
-        "group": "var_names",
-        "command": ""
+        "command": "group-var_names"
       },
       {
         "word": "X6",
         "op": "NN",
-        "group": "var_names",
-        "command": ""
+        "command": "group-var_names"
       },
       {
         "word": "and",
         "op": "CC",
-        "group": "var_names",
-        "command": ""
+        "command": "group-var_names"
       },
       {
         "word": "X7",
         "op": "NN",
-        "group": "var_names",
-        "command": ""
+        "command": "group-var_names"
       },
       {
         "word": ".",
@@ -225,20 +194,17 @@
       {
         "word": "two",
         "op": "CD",
-        "group" : "object_description",
-        "command": ""
+        "command": "group-description"
       },
       {
         "word": "blue",
         "op": "JJ",
-        "group" : "object_description",
-        "command": ""
+        "command": "group-description"
       },
       {
         "word": "balls",
         "op": "NNS",
-        "group" : "object_description",
-        "command": ""
+        "command": "group-description"
       },
       {
         "word": "word",
@@ -255,44 +221,37 @@
       {
         "word": "X1",
         "op": "NN",
-        "group": "var_names",
-        "command": ""
+        "command": "group-var_names"
       },
       {
         "word": "and",
         "op": "CC",
-        "group": "var_names",
-        "command": ""
+        "command": "group-var_names"
       },
       {
         "word": "X2",
         "op": "NN",
-        "group": "var_names",
-        "command": ""
+        "command": "group-var_names"
       },
       {
         "word": "as",
         "op": "IN",
-        "group": "var_names",
-        "command": ""
+        "command": "group-var_names"
       },
       {
         "word": "two",
         "op": "CD",
-        "group" : "object_description",
-        "command": ""
+        "command": "group-description"
       },
       {
         "word": "blue",
         "op": "JJ",
-        "group" : "object_description",
-        "command": ""
+        "command": "group-description"
       },
       {
         "word": "balls",
         "op": "NNS",
-        "group" : "object_description",
-        "command": ""
+        "command": "group-description"
       },
       {
         "word": "word",
@@ -309,38 +268,32 @@
       {
         "word": "X3",
         "op": "NN",
-        "group": "var_names",
-        "command": ""
+        "command": "group-var_names"
       },
       {
         "word": "and",
         "op": "CC",
-        "group": "var_names",
-        "command": ""
+        "command": "group-var_names"
       },
       {
         "word": "X4",
         "op": "NN",
-        "group": "var_names",
-        "command": ""
+        "command": "group-var_names"
       },
       {
         "word": "as",
         "op": "IN",
-        "group": "var_names",
-        "command": ""
+        "command": "group-var_names"
       },
       {
         "word": "blue",
         "op": "JJ",
-        "group" : "object_description",
-        "command": ""
+        "command": "group-description"
       },
       {
         "word": "balls",
         "op": "NNS",
-        "group" : "object_description",
-        "command": ""
+        "command": "group-description"
       },
       {
         "word": ".",
@@ -357,56 +310,47 @@
       {
         "word": "three",
         "op": "CD",
-        "group" : "object_description",
-        "command": ""
+        "command": "group-description"
       },
       {
         "word": "blue",
         "op": "JJ",
-        "group" : "object_description",
-        "command": ""
+        "command": "group-description"
       },
       {
         "word": "balls",
         "op": "NNS",
-        "group" : "object_description",
-        "command": ""
+        "command": "group-description"
       },
       {
         "word": "as",
         "op": "IN",
-        "group": "var_names",
-        "command": ""
+        "command": "group-var_names"
       },
       {
         "word": "X5",
         "op": "NN",
-        "group": "var_names",
-        "command": ""
+        "command": "group-var_names"
       },
       {
         "word": ",",
         "op": ",",
-        "group": "var_names",
-        "command": ""
+        "command": "group-var_names"
       },
       {
         "word": "X6",
         "op": "NN",
-        "group": "var_names",
-        "command": ""
+        "command": "group-var_names"
       },
       {
         "word": "and",
         "op": "CC",
-        "group": "var_names",
-        "command": ""
+        "command": "group-var_names"
       },
       {
         "word": "X7",
         "op": "NN",
-        "group": "var_names",
-        "command": ""
+        "command": "group-var_names"
       },
       {
         "word": ".",

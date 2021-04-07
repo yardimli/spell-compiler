@@ -1,4 +1,4 @@
-.stretch-card>.card {
+.stretch-card > .card {
 	width: 100%;
 	min-width: 100%
 }
@@ -13,13 +13,13 @@ body {
 	flex: 1 1 auto
 }
 
-@media (max-width:991.98px) {
+@media (max-width: 991.98px) {
 	.padding {
 		padding: 1.5rem
 	}
 }
 
-@media (max-width:767.98px) {
+@media (max-width: 767.98px) {
 	.padding {
 		padding: 1rem
 	}
@@ -95,7 +95,7 @@ body {
 	white-space: initial
 }
 
-.editable-container.editable-inline .editableform .control-group>div {
+.editable-container.editable-inline .editableform .control-group > div {
 	max-width: 100%
 }
 
@@ -133,7 +133,7 @@ body {
 	}
 }
 
-.btn-group-sm>.btn,
+.btn-group-sm > .btn,
 .btn-sm {
 	padding: 0.49rem .5rem;
 	font-size: .875rem;
@@ -143,4 +143,26 @@ body {
 
 .btn-warning {
 	color: #fff
+}
+
+.structure_container {
+	display: inline-block;
+	vertical-align: top;
+	margin-right: 10px;
+	border: 1px solid #ccc;
+	padding: 5px;
+	max-width: 150px;
+	min-width: 60px;
+}
+
+.structure_container_word {
+	background-color: #ccc;
+}
+
+.structure_container_pos {
+	background-color: #ddd;
+}
+
+.structure_container_command {
+	cursor: pointer;
 }
