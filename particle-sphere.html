@@ -119,19 +119,22 @@
 		uniform float uExplosionProgress;
 		uniform float uExplosionStrength;
 		uniform float uExplosionGravity;
-		uniform float uExplosionVariance; // New
+		uniform float uExplosionVariance;
 		varying float vExplosionProgress;
-		varying float vRandom; // New
+		varying float vRandom;
 
 		vec3 getExplosionPosition(vec3 basePosition) {
 			vExplosionProgress = uExplosionProgress;
-			vRandom = aRandom; // Pass random value to fragment shader
+			vRandom = aRandom;
 			if (uExplosionProgress > 0.0) {
-				vec3 explosionDir = normalize(position); // Use original sphere position for direction
-				float speed = 1.0 + aRandom * uExplosionVariance; // Use variance
+				vec3 explosionDir = normalize(position); // Use original sphere position for a clean radial direction
+				float speed = 1.0 + aRandom * uExplosionVariance;
 				float distance = pow(uExplosionProgress, 1.5) * uExplosionStrength * speed;
-				vec3 newPos = position + explosionDir * distance;
-				// Also apply variance to gravity for more chaotic effect
+				
+				// <<< FIXED: Start from the noise-deformed 'basePosition', not the raw 'position'
+				vec3 newPos = basePosition + explosionDir * distance;
+				
+				// Apply gravity
 				newPos.y -= pow(uExplosionProgress, 2.0) * uExplosionGravity * (1.0 + aRandom * uExplosionVariance * 0.5);
 				return newPos;
 			}
@@ -142,8 +145,8 @@
 	// --- (MODIFIED) Shared fade logic for fragment shaders ---
 	const GLSL_FADE_LOGIC = `
 		varying float vExplosionProgress;
-		varying float vRandom; // New
-		uniform float uFadeVariance; // New
+		varying float vRandom;
+		uniform float uFadeVariance;
 
 		float getFadeAlpha(float initialAlpha) {
 			float baseFadeDuration = 0.5;
@@ -707,7 +710,7 @@
 				particleBall.position.z = Math.cos(elapsedTime * moveSpeed * 1.2) * moveAmplitude;
 				particleBall.rotation.y = elapsedTime * 0.05;
 				
-				controls.target.copy(particleBall.position);
+				//controls.target.copy(particleBall.position);
 				
 				controls.update();
 			}
