@@ -52,10 +52,19 @@
 		ballMovement: {
 			amplitude: 2.5,
 			speed: 0.3
+		},
+		// --- (MODIFIED) Interaction and Explosion configuration ---
+		flightSpeed: 4.0, // Speed of ball moving to target
+		explosion: {
+			duration: 2.0,      // seconds
+			strength: 60.0,
+			gravity: 40.0,
+			variance: 1.5,      // Randomness of particle explosion speed
+			fadeVariance: 0.4   // Randomness of particle fade-out time
 		}
 	};
 	
-	// --- (MODIFIED) Color presets for different themes using RGB hex codes ---
+	// --- Color presets for different themes using RGB hex codes ---
 	const COLOR_PRESETS = {
 		'Fire':  { primary: '#FF4500', accent: '#FFD700', glow: '#FFFFFF' },
 		'Water': { primary: '#1E90FF', accent: '#40E0D0', glow: '#AFEEEE' },
@@ -63,7 +72,7 @@
 		'Air':   { primary: '#AEE6F5', accent: '#F0F8FF', glow: '#CFFAFE' }
 	};
 	
-	// --- (START) NEW: SHADER DEFINITIONS FOR EACH ELEMENT ---
+	// --- SHADER DEFINITIONS ---
 	
 	// --- Shared GLSL Functions ---
 	const GLSL_UTILS = `
@@ -104,54 +113,93 @@
 		}
 	`;
 	
+	// --- (MODIFIED) Shared explosion logic for vertex shaders ---
+	const GLSL_EXPLOSION_LOGIC = `
+		attribute float aRandom;
+		uniform float uExplosionProgress;
+		uniform float uExplosionStrength;
+		uniform float uExplosionGravity;
+		uniform float uExplosionVariance; // New
+		varying float vExplosionProgress;
+		varying float vRandom; // New
+
+		vec3 getExplosionPosition(vec3 basePosition) {
+			vExplosionProgress = uExplosionProgress;
+			vRandom = aRandom; // Pass random value to fragment shader
+			if (uExplosionProgress > 0.0) {
+				vec3 explosionDir = normalize(position); // Use original sphere position for direction
+				float speed = 1.0 + aRandom * uExplosionVariance; // Use variance
+				float distance = pow(uExplosionProgress, 1.5) * uExplosionStrength * speed;
+				vec3 newPos = position + explosionDir * distance;
+				// Also apply variance to gravity for more chaotic effect
+				newPos.y -= pow(uExplosionProgress, 2.0) * uExplosionGravity * (1.0 + aRandom * uExplosionVariance * 0.5);
+				return newPos;
+			}
+			return basePosition;
+		}
+	`;
+	
+	// --- (MODIFIED) Shared fade logic for fragment shaders ---
+	const GLSL_FADE_LOGIC = `
+		varying float vExplosionProgress;
+		varying float vRandom; // New
+		uniform float uFadeVariance; // New
+
+		float getFadeAlpha(float initialAlpha) {
+			float baseFadeDuration = 0.5;
+			// Randomize the duration of the fade-out. Higher variance = more difference.
+			float randomizedDuration = baseFadeDuration - vRandom * uFadeVariance;
+			randomizedDuration = max(0.1, randomizedDuration); // Ensure it doesn't become zero or negative
+
+			float fadeStart = 0.4;
+			float fade = 1.0 - smoothstep(fadeStart, fadeStart + randomizedDuration, vExplosionProgress);
+			return initialAlpha * fade;
+		}
+	`;
+	
 	const ELEMENT_SHADERS = {
 		'Fire': {
 			vertex: `
 				attribute float size;
 				varying vec3 vColor;
-				
 				uniform float uTime;
 				uniform float uNoiseAmount;
 				uniform float uNoiseSpeed;
 				uniform vec3 uColorPrimary;
 				uniform vec3 uColorAccent;
 				uniform vec3 uColorGlow;
-
 				${GLSL_UTILS}
+				${GLSL_EXPLOSION_LOGIC}
 
 				void main() {
 					vec3 normal = normalize(position);
 					float y_norm = (normal.y + 1.0) / 2.0;
-					
-					// --- Color: Flickering fire with hot spots ---
 					float flicker_fast = cnoise(normal * 15.0 + uTime * uNoiseSpeed * 10.0);
 					float flicker_slow = cnoise(normal * 5.0 + uTime * uNoiseSpeed * 3.0);
-					
-					// Mix between primary red-orange and accent yellow for the base flame color
 					vec3 baseColor = mix(uColorPrimary, uColorAccent, smoothstep(0.0, 0.6, flicker_fast));
-					
-					// Create moving hot spots (glow) that are white hot
 					float glow_amount = smoothstep(0.5, 0.8, flicker_slow);
 					vColor = mix(baseColor, uColorGlow, glow_amount);
 
-					// --- Displacement: Rising flames ---
 					vec3 transformed = position;
-					vec3 noise_coord = normal * 2.0 + vec3(0.0, -uTime * uNoiseSpeed * 0.5, 0.0); // Noise moves upwards
-					float noise = cnoise(noise_coord);
-					noise += cnoise(noise_coord * 3.0) * 0.5;
-					transformed += normal * noise * uNoiseAmount * (y_norm + 0.5); // More displacement at top
+					vec3 noise_coord = normal * 2.0 + vec3(0.0, -uTime * uNoiseSpeed * 0.5, 0.0);
+					float noise = cnoise(noise_coord) + cnoise(noise_coord * 3.0) * 0.5;
+					transformed += normal * noise * uNoiseAmount * (y_norm + 0.5);
 					
-					vec4 mvPosition = modelViewMatrix * vec4(transformed, 1.0);
-					gl_PointSize = size * (400.0 / -mvPosition.z) * (1.0 - y_norm * 0.5) * (1.0 + glow_amount); // Glowing parts are bigger
+					vec3 finalPos = getExplosionPosition(transformed);
+					
+					vec4 mvPosition = modelViewMatrix * vec4(finalPos, 1.0);
+					gl_PointSize = size * (400.0 / -mvPosition.z) * (1.0 - y_norm * 0.5) * (1.0 + glow_amount);
 					gl_Position = projectionMatrix * mvPosition;
 				}
 			`,
 			fragment: `
 				uniform sampler2D pointTexture;
 				varying vec3 vColor;
+				${GLSL_FADE_LOGIC}
 				void main() {
 					float alpha = texture2D(pointTexture, gl_PointCoord).a;
-					if (alpha < 0.05) discard;
+					alpha = getFadeAlpha(alpha);
+					if (alpha < 0.02) discard;
 					gl_FragColor = vec4(vColor, alpha);
 				}
 			`
@@ -160,41 +208,31 @@
 			vertex: `
 				attribute float size;
 				varying vec3 vColor;
-				
 				uniform float uTime;
 				uniform float uNoiseAmount;
 				uniform float uNoiseSpeed;
 				uniform vec3 uColorPrimary;
 				uniform vec3 uColorAccent;
 				uniform vec3 uColorGlow;
-
 				${GLSL_UTILS}
+				${GLSL_EXPLOSION_LOGIC}
 
 				void main() {
-					// --- Color: Ripples and animated light caustics ---
-					vec3 pos = position;
-					
-					// Base color variation between primary blue and accent teal
-					float color_noise = (cnoise(pos * 0.5 + uTime * 0.1) + 1.0) * 0.5;
+					float color_noise = (cnoise(position * 0.5 + uTime * 0.1) + 1.0) * 0.5;
 					vec3 baseColor = mix(uColorPrimary, uColorAccent, color_noise);
-					
-					// Caustics effect: a separate, faster moving noise pattern
-					vec3 caustic_coord = pos * 2.0 + vec3(0.0, uTime * uNoiseSpeed * 2.0, uTime * uNoiseSpeed * 1.5);
-					float caustic_noise = cnoise(caustic_coord);
-					caustic_noise += cnoise(caustic_coord * 2.5) * 0.5;
-					
-					// Apply caustics as a bright glow, sharpening the effect with pow
+					vec3 caustic_coord = position * 2.0 + vec3(0.0, uTime * uNoiseSpeed * 2.0, uTime * uNoiseSpeed * 1.5);
+					float caustic_noise = cnoise(caustic_coord) + cnoise(caustic_coord * 2.5) * 0.5;
 					float caustic_glow = pow(smoothstep(0.4, 0.7, caustic_noise), 2.0);
 					vColor = mix(baseColor, uColorGlow, caustic_glow);
 
-					// --- Displacement: Swirling currents ---
 					vec3 transformed = position;
 					vec3 normal = normalize(position);
-					float noise = cnoise(normal * 1.5 + uTime * uNoiseSpeed);
-					noise += cnoise(normal * 4.0 + uTime * uNoiseSpeed * 1.5) * 0.5; // Second layer for detail
+					float noise = cnoise(normal * 1.5 + uTime * uNoiseSpeed) + cnoise(normal * 4.0 + uTime * uNoiseSpeed * 1.5) * 0.5;
 					transformed += normal * noise * uNoiseAmount;
 					
-					vec4 mvPosition = modelViewMatrix * vec4(transformed, 1.0);
+					vec3 finalPos = getExplosionPosition(transformed);
+
+					vec4 mvPosition = modelViewMatrix * vec4(finalPos, 1.0);
 					gl_PointSize = size * (400.0 / -mvPosition.z) * (1.0 + caustic_glow * 0.5);
 					gl_Position = projectionMatrix * mvPosition;
 				}
@@ -202,9 +240,11 @@
 			fragment: `
 				uniform sampler2D pointTexture;
 				varying vec3 vColor;
+				${GLSL_FADE_LOGIC}
 				void main() {
 					float alpha = texture2D(pointTexture, gl_PointCoord).a;
-					if (alpha < 0.05) discard;
+					alpha = getFadeAlpha(alpha);
+					if (alpha < 0.02) discard;
 					gl_FragColor = vec4(vColor, alpha);
 				}
 			`
@@ -213,36 +253,31 @@
 			vertex: `
 				attribute float size;
 				varying vec3 vColor;
-				
 				uniform float uTime;
 				uniform float uNoiseAmount;
 				uniform float uNoiseSpeed;
 				uniform vec3 uColorPrimary;
 				uniform vec3 uColorAccent;
 				uniform vec3 uColorGlow;
-
 				${GLSL_UTILS}
+				${GLSL_EXPLOSION_LOGIC}
 
 				void main() {
 					vec3 normal = normalize(position);
-					
-					// --- Displacement: Crystalline, terraced, and cracked forms ---
-					float slowTime = uTime * uNoiseSpeed * 0.1; // Much slower animation
+					float slowTime = uTime * uNoiseSpeed * 0.1;
 					float terraceNoise = cnoise(normal * 2.5 + slowTime);
-					float terraces = floor(terraceNoise * 5.0) / 5.0; // Sharp steps
-					float crackleNoise = cnoise(position * 30.0 + slowTime); // High-frequency cracks
-					
+					float terraces = floor(terraceNoise * 5.0) / 5.0;
+					float crackleNoise = cnoise(position * 30.0 + slowTime);
 					vec3 transformed = position + normal * (terraces * uNoiseAmount * 3.0 + crackleNoise * uNoiseAmount * 0.3);
 
-					// --- Color: Banded rock and moss ---
 					float colorNoise = (cnoise(normal * 1.5 + slowTime * 0.5) + 1.0) / 2.0;
 					vec3 baseColor = mix(uColorPrimary, uColorAccent, smoothstep(0.4, 0.6, colorNoise));
-					
-					// Subtle glow in crevices, using a different noise
 					float glowNoise = smoothstep(0.6, 0.8, cnoise(normal * 4.0 + slowTime));
-					vColor = mix(baseColor, uColorGlow, glowNoise * 0.5); // Make glow subtle
+					vColor = mix(baseColor, uColorGlow, glowNoise * 0.5);
 					
-					vec4 mvPosition = modelViewMatrix * vec4(transformed, 1.0);
+					vec3 finalPos = getExplosionPosition(transformed);
+					
+					vec4 mvPosition = modelViewMatrix * vec4(finalPos, 1.0);
 					gl_PointSize = size * (400.0 / -mvPosition.z);
 					gl_Position = projectionMatrix * mvPosition;
 				}
@@ -250,9 +285,11 @@
 			fragment: `
 				uniform sampler2D pointTexture;
 				varying vec3 vColor;
+				${GLSL_FADE_LOGIC}
 				void main() {
 					float alpha = texture2D(pointTexture, gl_PointCoord).a;
-					if (alpha < 0.05) discard;
+					alpha = getFadeAlpha(alpha);
+					if (alpha < 0.02) discard;
 					gl_FragColor = vec4(vColor, alpha);
 				}
 			`
@@ -261,42 +298,35 @@
 			vertex: `
 				attribute float size;
 				varying vec3 vColor;
-				varying float vAlpha; // Pass alpha to fragment shader
-				
+				varying float vAlpha;
 				uniform float uTime;
 				uniform float uNoiseAmount;
 				uniform float uNoiseSpeed;
 				uniform vec3 uColorPrimary;
 				uniform vec3 uColorAccent;
 				uniform vec3 uColorGlow;
-
 				${GLSL_UTILS}
+				${GLSL_EXPLOSION_LOGIC}
 
 				void main() {
 					vec3 normal = normalize(position);
-					
-					// --- Displacement: Soft, wispy clouds ---
 					vec3 transformed = position;
-					float noise = cnoise(normal * 0.8 + uTime * uNoiseSpeed * 0.2); // Low frequency noise
-					noise += cnoise(normal * 2.5 + uTime * uNoiseSpeed * 0.5) * 0.3;
+					float noise = cnoise(normal * 0.8 + uTime * uNoiseSpeed * 0.2) + cnoise(normal * 2.5 + uTime * uNoiseSpeed * 0.5) * 0.3;
 					transformed += normal * noise * uNoiseAmount;
 
-					// --- Color & Alpha: Ethereal and transparent ---
-					// Mix between primary sky blue and accent white for subtle variation
 					float colorNoise = (cnoise(normal * 2.0 + uTime * uNoiseSpeed * 0.3) + 1.0) / 2.0;
 					vec3 baseColor = mix(uColorPrimary, uColorAccent, colorNoise);
-					
-					// Soft, moving glow zones using pale cyan
 					float glowNoise = (cnoise(normal * 0.8 + uTime * uNoiseSpeed * 0.2) + 1.0) / 2.0;
 					float glowAmount = pow(glowNoise, 3.0);
 					vColor = mix(baseColor, uColorGlow, glowAmount);
 					
-					// Alpha based on different noise to prevent perfect correlation with glow
 					float alphaNoise = (cnoise(normal * 1.5 + uTime * uNoiseSpeed * 0.4) + 1.0) / 2.0;
 					vAlpha = pow(alphaNoise, 2.5);
 					
-					vec4 mvPosition = modelViewMatrix * vec4(transformed, 1.0);
-					gl_PointSize = size * (400.0 / -mvPosition.z) * 1.5; // Slightly larger particles
+					vec3 finalPos = getExplosionPosition(transformed);
+					
+					vec4 mvPosition = modelViewMatrix * vec4(finalPos, 1.0);
+					gl_PointSize = size * (400.0 / -mvPosition.z) * 1.5;
 					gl_Position = projectionMatrix * mvPosition;
 				}
 			`,
@@ -304,16 +334,20 @@
 				uniform sampler2D pointTexture;
 				varying vec3 vColor;
 				varying float vAlpha;
+				${GLSL_FADE_LOGIC}
 				void main() {
 					float textureAlpha = texture2D(pointTexture, gl_PointCoord).a;
-					if (textureAlpha * vAlpha < 0.02) discard;
-					gl_FragColor = vec4(vColor, textureAlpha * vAlpha);
+					float initialAlpha = textureAlpha * vAlpha;
+					float finalAlpha = getFadeAlpha(initialAlpha);
+					if (finalAlpha < 0.01) discard;
+					gl_FragColor = vec4(vColor, finalAlpha);
 				}
 			`
 		}
 	};
-	// --- (END) NEW: SHADER DEFINITIONS ---
 	
+	let flightStart = null;
+	let flightStartPosition = new THREE.Vector3();
 	
 	// --- Scene Setup ---
 	const scene = new THREE.Scene();
@@ -441,7 +475,9 @@
 		const floorGeometry = new THREE.PlaneGeometry(200, 200);
 		const floorMaterial = new THREE.MeshBasicMaterial({
 			map: floorTexture,
-			side: THREE.DoubleSide
+			side: THREE.DoubleSide,
+			transparent: true,
+			opacity: 0.5
 		});
 		
 		floor = new THREE.Mesh(floorGeometry, floorMaterial);
@@ -458,7 +494,7 @@
 	createCheckeredFloor();
 	
 	
-	// --- MODIFIED --- 3. Create the Particle Ball (now with shader-based colors) ---
+	// --- (MODIFIED) 3. Create the Particle Ball ---
 	let particleBall, particleMaterial;
 	
 	function regenerateParticleBall() {
@@ -471,6 +507,7 @@
 		const geometry = new THREE.BufferGeometry();
 		const positions = new Float32Array(CONFIG.particleCount * 3);
 		const sizes = new Float32Array(CONFIG.particleCount);
+		const randoms = new Float32Array(CONFIG.particleCount);
 		
 		const tempVec = new THREE.Vector3();
 		const preset = COLOR_PRESETS[CONFIG.colorPreset];
@@ -488,12 +525,13 @@
 			positions[i * 3 + 2] = tempVec.z;
 			
 			sizes[i] = Math.random() * 0.15 + 0.05;
+			randoms[i] = Math.random();
 		}
 		
 		geometry.setAttribute('position', new THREE.BufferAttribute(positions, 3));
 		geometry.setAttribute('size', new THREE.BufferAttribute(sizes, 1));
+		geometry.setAttribute('aRandom', new THREE.BufferAttribute(randoms, 1));
 		
-		// --- MODIFIED --- Material now uses the selected shader and RGB color uniforms
 		particleMaterial = new THREE.ShaderMaterial({
 			uniforms: {
 				pointTexture: { value: particleTexture },
@@ -504,6 +542,12 @@
 				uColorPrimary: { value: new THREE.Color(preset.primary) },
 				uColorAccent: { value: new THREE.Color(preset.accent) },
 				uColorGlow: { value: new THREE.Color(preset.glow) },
+				// --- (MODIFIED) Explosion uniforms ---
+				uExplosionProgress: { value: 0.0 },
+				uExplosionStrength: { value: CONFIG.explosion.strength },
+				uExplosionGravity: { value: CONFIG.explosion.gravity },
+				uExplosionVariance: { value: CONFIG.explosion.variance },
+				uFadeVariance: { value: CONFIG.explosion.fadeVariance },
 			},
 			vertexShader: shaders.vertex,
 			fragmentShader: shaders.fragment,
@@ -519,7 +563,7 @@
 	// --- Initial creation of the particle ball ---
 	regenerateParticleBall();
 	
-	// --- GUI for real-time control ---
+	// --- (MODIFIED) GUI for real-time control ---
 	const gui = new GUI();
 	
 	const ballFolder = gui.addFolder('Particle Ball');
@@ -534,7 +578,7 @@
 		});
 	ballFolder.add(CONFIG, 'colorPreset', Object.keys(COLOR_PRESETS))
 		.name('Element')
-		.onChange(regenerateParticleBall); // This now swaps the shaders
+		.onChange(regenerateParticleBall);
 	
 	const noiseFolder = gui.addFolder('Organic Movement (Surface)');
 	noiseFolder.add(CONFIG.noise, 'amount', 0, 5, 0.01).name('Amount').onChange(val => {
@@ -553,6 +597,89 @@
 	bloomFolder.add(CONFIG.bloom, 'radius', 0, 2, 0.01).name('Radius').onChange(val => bloomPass.radius = val);
 	bloomFolder.add(CONFIG.bloom, 'threshold', 0, 1, 0.01).name('Threshold').onChange(val => bloomPass.threshold = val);
 	
+	// --- (NEW) Interaction GUI ---
+	const interactionFolder = gui.addFolder('Interaction');
+	interactionFolder.add(CONFIG, 'flightSpeed', 1, 10, 0.1).name('Flight Speed');
+	const explosionFolder = interactionFolder.addFolder('Explosion');
+	explosionFolder.add(CONFIG.explosion, 'duration', 0.5, 5.0, 0.1).name('Duration (s)');
+	explosionFolder.add(CONFIG.explosion, 'strength', 10, 150, 1).name('Force').onChange(val => {
+		if (particleMaterial) particleMaterial.uniforms.uExplosionStrength.value = val;
+	});
+	explosionFolder.add(CONFIG.explosion, 'gravity', 0, 100, 1).name('Gravity').onChange(val => {
+		if (particleMaterial) particleMaterial.uniforms.uExplosionGravity.value = val;
+	});
+	explosionFolder.add(CONFIG.explosion, 'variance', 0, 5, 0.1).name('Speed Variance').onChange(val => {
+		if (particleMaterial) particleMaterial.uniforms.uExplosionVariance.value = val;
+	});
+	explosionFolder.add(CONFIG.explosion, 'fadeVariance', 0, 0.4, 0.01).name('Fade Variance').onChange(val => {
+		if (particleMaterial) particleMaterial.uniforms.uFadeVariance.value = val;
+	});
+	
+	// --- (MODIFIED) Interaction and State Management ---
+	const raycaster = new THREE.Raycaster();
+	const mouse = new THREE.Vector2(); // Will store normalized device coordinates
+	const targetPosition = new THREE.Vector3();
+	const targetPlane = new THREE.Plane(); // For 3D mouse projection
+	const cameraDirection = new THREE.Vector3();
+	let state = 'drifting'; // 'drifting', 'flying', 'exploding'
+	let explosionStartTime = 0;
+	
+	function onMouseMove(event) {
+		// Update mouse coordinates for raycasting
+		mouse.x = (event.clientX / window.innerWidth) * 2 - 1;
+		mouse.y = -(event.clientY / window.innerHeight) * 2 + 1;
+	}
+	
+	// <<< MODIFIED: This function is now fully implemented
+	function onKeyDown(event) {
+		// Trigger flight on spacebar press
+		if (event.code === 'Space' && state === 'drifting') {
+			event.preventDefault(); // Prevent page from scrolling
+			
+			// 1. Get the direction the camera is looking
+			camera.getWorldDirection(cameraDirection);
+			
+			// 2. Create a plane at the ball's current position, facing the camera.
+			// The plane's normal must point TOWARDS the camera for the ray to intersect it.
+			const planeNormal = cameraDirection.clone().negate();
+			targetPlane.setFromNormalAndCoplanarPoint(planeNormal, particleBall.position);
+			
+			// 3. Cast a ray from the camera through the mouse position
+			raycaster.setFromCamera(mouse, camera);
+			
+			// 4. Find where the ray hits the plane
+			if (raycaster.ray.intersectPlane(targetPlane, targetPosition)) {
+				// We have a 3D target!
+				state = 'flying';
+				flightStart = clock.getElapsedTime();
+				flightStartPosition.copy(particleBall.position);
+				//controls.enabled = false; // Disable camera controls during flight
+			}
+		}
+	}
+	
+	// <<< MODIFIED: This function now resets the camera target
+	function respawnBall() {
+		// Pick a random element
+		const elements = Object.keys(COLOR_PRESETS);
+		CONFIG.colorPreset = elements[Math.floor(Math.random() * elements.length)];
+		
+		// Pick a random size
+		CONFIG.sphereRadius = THREE.MathUtils.randFloat(6, 14);
+		
+		// Regenerate the ball with new settings
+		regenerateParticleBall();
+		updateFloorPosition();
+		
+		// Reset its position and state
+		particleBall.position.set(0, 0, 0);
+		controls.target.set(0, 0, 0); // <<< ADDED: Reset camera target as well
+		state = 'drifting';
+		
+		// Update the GUI to show the new random values
+		gui.updateDisplay();
+		controls.enabled = true; // Re-enable camera controls
+	}
 	
 	// --- Controls & Animation ---
 	const controls = new OrbitControls(camera, renderer.domElement);
@@ -567,20 +694,48 @@
 	function animate() {
 		requestAnimationFrame(animate);
 		const elapsedTime = clock.getElapsedTime();
+		const deltaTime = clock.getDelta();
 		
 		if (particleBall && particleMaterial) {
 			particleMaterial.uniforms.uTime.value = elapsedTime;
 			
-			const moveSpeed = CONFIG.ballMovement.speed;
-			const moveAmplitude = CONFIG.ballMovement.amplitude;
-			particleBall.position.x = Math.sin(elapsedTime * moveSpeed) * moveAmplitude;
-			particleBall.position.y = Math.sin(elapsedTime * moveSpeed * 0.8) * moveAmplitude * 0.4;
-			particleBall.position.z = Math.cos(elapsedTime * moveSpeed * 1.2) * moveAmplitude;
-			
-			particleBall.rotation.y = elapsedTime * 0.05;
+			if (state === 'drifting') {
+				const moveSpeed = CONFIG.ballMovement.speed;
+				const moveAmplitude = CONFIG.ballMovement.amplitude;
+				particleBall.position.x = Math.sin(elapsedTime * moveSpeed) * moveAmplitude;
+				particleBall.position.y = Math.sin(elapsedTime * moveSpeed * 0.8) * moveAmplitude * 0.4;
+				particleBall.position.z = Math.cos(elapsedTime * moveSpeed * 1.2) * moveAmplitude;
+				particleBall.rotation.y = elapsedTime * 0.05;
+				
+				controls.target.copy(particleBall.position);
+				
+				controls.update();
+			}
+			else if (state === 'flying') {
+				const flightTime = (elapsedTime - flightStart) * CONFIG.flightSpeed;
+				const t = Math.min(flightTime / 1.0, 1.0); // 1.0 sec normalized
+				
+				// Smooth interpolation
+				particleBall.position.lerpVectors(flightStartPosition, targetPosition, t);
+				
+				if (t >= 1.0) {
+					state = 'exploding';
+					explosionStartTime = elapsedTime;
+				}
+				controls.update();
+			}
+			else if (state === 'exploding') {
+				const progress = (elapsedTime - explosionStartTime) / CONFIG.explosion.duration;
+				particleMaterial.uniforms.uExplosionProgress.value = Math.min(progress, 1.0);
+				
+				// Wait a bit longer for particles to fade out completely before respawning
+				if (progress > 1.5) {
+					respawnBall();
+				}
+				controls.update();
+			}
 		}
 		
-		controls.update();
 		composer.render();
 	}
 	
@@ -592,6 +747,10 @@
 		composer.setSize(window.innerWidth, window.innerHeight);
 		renderer.setPixelRatio(window.devicePixelRatio);
 	});
+	
+	// --- (NEW) Add event listeners for mouse move and keydown ---
+	window.addEventListener('mousemove', onMouseMove);
+	window.addEventListener('keydown', onKeyDown);
 	
 	animate();
 </script>
