@@ -1,0 +1,29 @@
+{
+  "name": "spell-compiler",
+  "version": "1.0.0",
+  "main": "index.js",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/yardimli/spell-compiler.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/yardimli/spell-compiler/issues"
+  },
+  "homepage": "https://github.com/yardimli/spell-compiler#readme",
+  "description": "",
+  "devDependencies": {
+    "vite": "^7.0.6"
+  },
+  "dependencies": {
+    "@babel/runtime": "^7.28.2",
+    "three": "^0.179.1",
+    "three-nebula": "^10.0.3"
+  }
+}
